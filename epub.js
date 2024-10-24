@@ -14,6 +14,9 @@ class EpubBook {
   }
 
   async loadFromFile(file) {
+
+    const dateBefore = new Date();
+
     // https://stuk.github.io/jszip/documentation/api_zipobject/async.html
     const zip = await JSZip.loadAsync(file)
 
@@ -100,8 +103,18 @@ class EpubBook {
       fileWrapper.innerHTML = body.innerHTML;
 
       this.textHTML.push(fileWrapper);
-      this.textString.push(body.innerText.trim());
+
+      // before getting the string, we need to remove rt tags inside <ruby>
+      // we need to clone the element, otherwise it will affect the textHTML array
+      const noRubyBody = body.cloneNode(true);
+      [...noRubyBody.getElementsByTagName("rt")].forEach(elem => {
+        elem.parentNode.removeChild(elem);
+      });
+
+      this.textString.push(noRubyBody.innerText.trim());
     }
+
+    console.log(`Epub loaded in ${new Date() - dateBefore}ms`);
   }
 }
 
