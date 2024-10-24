@@ -53,6 +53,11 @@ de <body> de cada elemento.
 
 Es necesario que hagamos un mapping a todas las imagenes y cambiemos la url a un blob
 interno.
+
+Fijarse en el atributo properties!
+- properties="cover-image" (si no tiene, cargamos la primera imagen)
+- properties="nav"
+
 ```xml
 <manifest>
 <item href="Text/p-0001.xhtml" id="p-0001" media-type="application/xhtml+xml" properties="svg" />

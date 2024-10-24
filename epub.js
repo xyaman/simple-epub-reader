@@ -43,6 +43,7 @@ class EpubBook {
 
     // Read Contents (Manifest)
 
+    // TODO: ONLY make blobs if the book is going to be readed
     // A dictionary to change the original img url with the blob one
     const images = {};
 
