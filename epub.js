@@ -26,7 +26,10 @@ class EpubBook {
     const containerContent = containerparser.parseFromString(container, "application/xml");
     const contentFileName = containerContent.getElementsByTagName("rootfile")[0].getAttribute("full-path");
 
-    const contentsPath = contentFileName.match(/^.*\//)[0];
+    let contentsPath = "";
+    if (contentFileName.match(/^.*\//)) {
+      contentsPath = contentFileName.match(/^.*\//)[0];
+    }
 
     // Metadata
     // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
@@ -47,7 +50,8 @@ class EpubBook {
     const blobs = [];
 
     // We load all images
-    for (const image of zip.filter(path => path.includes(".jpg"))) {
+    // TODO: CHECK if its an image instead of looking the extension
+    for (const image of zip.filter(path => path.includes(".jpg") || path.includes(".jpeg"))) {
       const r = await zip.file(image.name).async("blob")
       let blob = r.slice(0, r.size, "image/jpeg")
       images[getFileName(image.name)] = URL.createObjectURL(blob);
@@ -81,6 +85,7 @@ class EpubBook {
       const bodyimages = body.getElementsByTagName("image");
       if (bodyimages.length > 0) {
         let url = getFileName(bodyimages[0].getAttribute("xlink:href"));
+        console.log(images, url);
         [...bodyimages].forEach(image => image.setAttribute("xlink:href", images[url]));
       }
 
@@ -121,5 +126,8 @@ class EpubBook {
 
 function getFileName(path) {
   let regex = /[^/]+$/;
-  return path.match(regex)[0];
+  if (path.match(regex)) {
+    return path.match(regex)[0];
+  }
+  return path;
 }
