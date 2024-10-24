@@ -1,13 +1,4 @@
-// Process the epub file
-document.getElementById("file-input").addEventListener('change', function(e) {
-  if (e.target.files[0]) {
-    console.log('You selected ' + e.target.files[0].name);
-    readEpubFile(e.target.files[0]);
-  }
-});
-
-
-class Book {
+class EpubBook {
   constructor() {
     this.title = "";
     this.language = "";
@@ -92,27 +83,28 @@ class Book {
 
       const bodyimages2 = body.getElementsByTagName("img");
       if (bodyimages2.length > 0) {
-        [...bodyimages2].forEach(image => {
-          console.log(getFileName(image.src))
-          image.src = images[getFileName(image.src)]
-        });
+        [...bodyimages2].forEach(image => image.src = images[getFileName(image.src)]);
       }
 
-      this.textHTML.push(body);
+      // We want to modify the links
+      // I don't know if it works in all epubs, and probably wont work 
+      // if we uses pages. It's only tested in scrolling (full mode)
+      const links = body.getElementsByTagName("a");
+      if (links) {
+        [...links].forEach(link => link.href = "#" + link.href.split("#")[1]);
+      }
+
+      // we have the file name without the extension
+      const fileWrapper = document.createElement("div");
+      fileWrapper.id = getFileName(textfile).slice(0, -6);
+      fileWrapper.innerHTML = body.innerHTML;
+
+      this.textHTML.push(fileWrapper);
       this.textString.push(body.innerText.trim());
     }
   }
 }
 
-
-async function readEpubFile(f) {
-  const book = new Book();
-  await book.loadFromFile(f)
-  console.log(book.textString);
-  for (const html of book.textHTML) {
-    document.body.append(html);
-  }
-}
 
 function getFileName(path) {
   let regex = /[^/]+$/;
