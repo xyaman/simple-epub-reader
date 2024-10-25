@@ -67,6 +67,7 @@ class Reader {
     });
 
     // Move the reader to the current position
+    console.log([...this.paragraphs]);
     this.paragraphs[this.book.lastReadIndex].scrollIntoView();
 
     this.charsCounterElem.innerText = `0/${totalChars} (0%)`
