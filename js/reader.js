@@ -4,10 +4,10 @@ class Reader {
   constructor(readerElem, charsCounterElem) {
     // Corresponds to the index of the current book
     this.current_book = null;
+    this.bookID = null;
 
     this.paragraphs = [];
     this.paragraphsCharsAcum = [];
-    this.lastReadIndex = 0;
 
     this.readerElem = readerElem
     this.charsCounterElem = charsCounterElem;
@@ -16,11 +16,11 @@ class Reader {
       fontSize: 25,
     };
 
-    this.updateElem();
+    this.updateElemStyle();
   }
 
   // Updates the elements css based on the reader preferences
-  updateElem() {
+  updateElemStyle() {
     this.readerElem.style.fontSize = `${this.preferences.fontSize}px`;
   }
 
@@ -38,6 +38,7 @@ class Reader {
     this.paragraphs = this.readerElem.querySelectorAll("p");
     for (let i = 0; i < this.paragraphs.length; i++) {
       this.paragraphs[i].setAttribute("data-index", i);
+      this.book.totalIndex = i;
     }
 
     const isNotJapaneseRegex =
@@ -65,6 +66,9 @@ class Reader {
       this.paragraphsCharsAcum.push(totalChars); // Guarda la cantidad total de caracteres hasta este párrafo
     });
 
+    // Move the reader to the current position
+    this.paragraphs[this.book.lastReadIndex].scrollIntoView();
+
     this.charsCounterElem.innerText = `0/${totalChars} (0%)`
 
     document.removeEventListener("scroll", this.handleScroll.bind(this));
@@ -84,10 +88,13 @@ class Reader {
       break
     }
 
-    if (lastReadIndex != this.lastReadIndex) {
+    if (lastReadIndex != this.book.lastReadIndex) {
       const progressPercentage = this.paragraphsCharsAcum[lastReadIndex] / this.paragraphsCharsAcum.slice(-1)[0] * 100;
       this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastReadIndex]}/${this.paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
-      this.lastReadIndex = lastReadIndex;
+      this.book.lastReadIndex = lastReadIndex;
+
+      // Update into the db every time?
+      db.updateBookPosition(this.bookID, this.book);
     }
 
   }
@@ -100,9 +107,12 @@ const id = urlParams.get("id");
 
 // Improve this to avoid fetching all books
 const books = await db.getAllBooks();
-const book = new EpubBook()
-await book.loadFromFile(books[id].file);
+
+const book = new EpubBook(parseInt(id))
+await book.loadFromFile(books[id].value.file);
 await book.loadContent();
+reader.bookID = books[id].key;
+book.lastReadIndex = books[id].value.lastReadIndex;
 
 reader.setCurrentBook(book);
 

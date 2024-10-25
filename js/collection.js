@@ -16,8 +16,8 @@ class Collection {
       const books = await db.getAllBooks();
       console.log(books);
       for (const book of books) {
-        const classBook = new EpubBook();
-        await classBook.loadFromFile(book.file);
+        const classBook = new EpubBook(book.key);
+        await classBook.loadFromFile(book.value.file);
         this.books.push(classBook);
         console.log("All books have been loaded");
       }

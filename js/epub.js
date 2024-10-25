@@ -1,12 +1,14 @@
 //http://stackoverflow.com/questions/18679576/counting-words-in-string
 
 class EpubBook {
-  constructor() {
+  constructor(id, lastReadIndex) {
+    this.id = id;
     this.title = "";
     this.language = "";
     this.creator = "";
 
-    this.charactersRead = 0;
+    this.lastReadIndex = lastReadIndex;
+    // this.totalIndex = 0;
 
     // Array of all book html+xml content already sanitized to 
     // work with images
@@ -20,6 +22,17 @@ class EpubBook {
     this.cache = {
       zip: null,
     };
+  }
+
+  asObject() {
+    return {
+      title: this.title,
+      language: this.language,
+      creator: this.creator,
+      lastReadIndex: this.lastReadIndex | 0,
+      totalIndex: this.totalIndex | 0,
+      file: this.file,
+    }
   }
 
   async loadFromFile(file) {

@@ -12,7 +12,10 @@ export async function getAllBooks() {
     }
   });
 
-  return await db.getAll(STORE_NAME);
+  const keys = await db.getAllKeys(STORE_NAME);
+  const values = await db.getAll(STORE_NAME);
+
+  return keys.map((key, index) => ({ key, value: values[index] }));
 }
 
 export async function addBook(book) {
@@ -20,6 +23,10 @@ export async function addBook(book) {
   await db.add(STORE_NAME, book)
 }
 
-function removeBookById(id) { }
+async function updateBookPosition(id, book) {
+  const db = await openDB(DATABASE_NAME, 1);
+  await db.put(STORE_NAME, book.asObject(), id);
+  console.log(book.asObject());
+}
 
-export default { getAllBooks, addBook };
+export default { getAllBooks, addBook, updateBookPosition };
