@@ -89,16 +89,28 @@ class Reader {
 }
 
 const reader = new Reader(document.getElementById("reader"));
+// get id
+const urlParams = new URLSearchParams(window.location.search);
+const id = urlParams.get("id");
 
-// Process the epub file
-document.getElementById("file-input").addEventListener('change', async function(e) {
-  if (e.target.files[0]) {
-    console.log('EPUB file: ' + e.target.files[0].name);
+const request = window.indexedDB.open("books-collection");
+request.onerror = e => alert("couldn't load books collection database", e);
+request.onsuccess = e => {
+  const db = e.target.result;
+  console.log("books collection db opened correctly")
 
-    const book = new EpubBook();
-    await book.loadFromFile(e.target.files[0])
+  const transaction = db.transaction(["books"])
+  const store = transaction.objectStore("books");
 
+  const query = store.getAll();
+  query.onsuccess = async e => {
+    const books = e.target.result
+    const book = new EpubBook()
+    await book.loadFromFile(books[id].file);
+    await book.loadContent();
+    console.log(books[id]);
+    console.log(book);
     reader.setCurrentBook(book);
-  }
-});
+  };
+};
 

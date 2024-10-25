@@ -4,38 +4,49 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Hello Bulma!</title>
+  <title>Collection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
   <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
-  <section class="section">
-    <div class="container">
-      <div class="file">
-        <label class="file-label">
-          <input id="file-input" class="file-input" type="file" name="resume" accept=".epub" />
-          <span class="file-cta">
-            <span class="file-icon">
-              <i class="fas fa-upload"></i>
-            </span>
-            <span class="file-label"> Choose a file… </span>
-          </span>
-        </label>
+  <nav class="navbar" role="navigation" aria-label="main navigation">
+    <div id="navbarBasicExample" class="navbar-menu is-active">
+      <div class="navbar-start">
+        <p class="navbar-item">
+          EPUB Reader
+        </p>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="file">
+            <label class="file-label">
+              <input id="file-input" class="file-input" type="file" name="resume" accept=".epub" />
+              <span class="file-cta">
+                <span class="file-icon">
+                  <i class="fas fa-upload"></i>
+                </span>
+                <span class="file-label"> Upload a book </span>
+              </span>
+            </label>
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+  </nav>
 
-  <section class="section">
+  <div class="section">
     <div class="container">
-      <div id="reader"></div>
+      <div id="books-container"></div>
+
     </div>
-  </section>
+  </div>
 
   <script src="js/jszip.min.js"></script>
   <script src="js/epub.js"></script>
-  <script src="js/reader.js"></script>
-
+  <script src="js/collection.js"></script>
 </body>
 
 </html>

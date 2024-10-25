@@ -11,18 +11,87 @@ class EpubBook {
     // Array of all book html+xml content already sanitized to 
     // work with images
     this.textHTML = [];
+    this.file = null;
+    this.contentFile = null;
+    this.contentsPath = "";
 
-    // Array of all book html+xml content as string.
-    // It might has extra/useless information (ex. <ruby> info)
-    this.textString = [];
+    // This files are "temporary", it should be deleted before saving into
+    // the indexedDB.
+    this.cache = {
+      zip: null,
+    };
   }
 
   async loadFromFile(file) {
 
-    const dateBefore = new Date();
-
-    // https://stuk.github.io/jszip/documentation/api_zipobject/async.html
+    // Why we dont use loadEpub()? Because we dont want to save the zip to the
+    // as a property. This function is only called when the book is added to the 
+    // collection
     const zip = await JSZip.loadAsync(file)
+    this.file = file;
+
+    // We must first read META-INF/container.xml
+    const container = await zip.file("META-INF/container.xml").async("text")
+    const containerparser = new DOMParser();
+    const containerContent = containerparser.parseFromString(container, "application/xml");
+    const contentFileName = containerContent.getElementsByTagName("rootfile")[0].getAttribute("full-path");
+
+    let contentsPath = "";
+    if (contentFileName.match(/^.*\//)) {
+      contentsPath = contentFileName.match(/^.*\//)[0];
+      this.contentsPath = contentsPath;
+    }
+
+    // Metadata
+    // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
+    const content = await zip.file(contentFileName).async("text")
+    this.contentFile = contentFileName;
+    const parser = new DOMParser();
+    const parsedContent = parser.parseFromString(content, "application/xml");
+
+    this.title = parsedContent.getElementsByTagName("dc:title")[0].innerHTML
+    this.language = parsedContent.getElementsByTagName("dc:language")[0].innerHTML
+    this.creator = parsedContent.getElementsByTagName("dc:creator")[0].innerHTML
+  }
+
+  /** Loads epub from the inner file. If it's alreay loaded, it just return the
+  * object property 
+  * https://stuk.github.io/jszip/documentation/api_zipobject/async.html
+  * */
+  async loadEpub() {
+    if (!this.file) return;
+    this.cache.zip = this.cache.zip ? this.cache.zip : await JSZip.loadAsync(this.file);
+    return this.cache.zip;
+  }
+
+  async getCoverBlob() {
+
+    const zipEpub = await this.loadEpub();
+    const content = await zipEpub.file(this.contentFile).async("text")
+    const parser = new DOMParser();
+    const parsedContent = parser.parseFromString(content, "application/xml");
+
+    // We also need to load the cover image
+    // TODO: improve this
+    // <item href="Images/embed0018_HD.jpg" properties="cover-image" id="embed0018_HD" media-type="image/jpeg" />
+
+    const imagesItems = parsedContent.getElementsByTagName("item");
+    for (let i = 0; i < imagesItems.length; i++) {
+      if (imagesItems[i].getAttribute("properties") == "cover-image") {
+        const coverImagePath = this.contentsPath + imagesItems[i].getAttribute("href");
+        const r = await zipEpub.file(coverImagePath).async("blob")
+        let blob = r.slice(0, r.size, "image/jpeg")
+        return URL.createObjectURL(blob);
+      }
+    }
+  }
+
+  async loadContent() {
+    if (!this.file) return;
+
+    const dateBefore = new Date();
+    const zip = await this.loadEpub();
+    console.log(zip);
 
     // We must first read META-INF/container.xml
     const container = await zip.file("META-INF/container.xml").async("text")
@@ -35,15 +104,9 @@ class EpubBook {
       contentsPath = contentFileName.match(/^.*\//)[0];
     }
 
-    // Metadata
-    // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
     const content = await zip.file(contentFileName).async("text")
     const parser = new DOMParser();
     const parsedContent = parser.parseFromString(content, "application/xml");
-
-    this.title = parsedContent.getElementsByTagName("dc:title")[0].innerHTML
-    this.language = parsedContent.getElementsByTagName("dc:language")[0].innerHTML
-    this.creator = parsedContent.getElementsByTagName("dc:creator")[0].innerHTML
 
     // Read Contents (Manifest)
 
@@ -71,7 +134,6 @@ class EpubBook {
       .map(item => contentsPath + item.getAttribute("href"));
 
     for (const textfile of textitems) {
-
 
       // We should ignore navigations file
       // TODO: if the textfile contains the attribute: properties="nav"
@@ -114,15 +176,6 @@ class EpubBook {
       fileWrapper.innerHTML = body.innerHTML;
 
       this.textHTML.push(fileWrapper);
-
-      // before getting the string, we need to remove rt tags inside <ruby>
-      // we need to clone the element, otherwise it will affect the textHTML array
-      const noRubyBody = body.cloneNode(true);
-      [...noRubyBody.getElementsByTagName("rt")].forEach(elem => {
-        elem.parentNode.removeChild(elem);
-      });
-
-      this.textString.push(noRubyBody.innerText.trim());
     }
 
     console.log(`Epub loaded in ${new Date() - dateBefore}ms`);
