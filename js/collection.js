@@ -1,3 +1,5 @@
+import db from "./db.js"
+
 /** Represents the collection of books 
  * @param {HTMLElement} elem 
  * */
@@ -8,39 +10,20 @@ class Collection {
     /** @type {HTMLElement} */
     this.elem = elem;
 
-    // Loads books from database 
-    const request = window.indexedDB.open("books-collection");
-    request.onerror = e => alert("couldn't load books collection database", e);
-    request.onsuccess = e => {
-      const db = e.target.result;
-      console.log("books collection db opened correctly")
+    (async () => {
 
-      const transaction = db.transaction(["books"])
-      const store = transaction.objectStore("books");
+      // Loads books from database 
+      const books = await db.getAllBooks();
+      console.log(books);
+      for (const book of books) {
+        const classBook = new EpubBook();
+        await classBook.loadFromFile(book.file);
+        this.books.push(classBook);
+        console.log("All books have been loaded");
+      }
 
-      const query = store.getAll();
-      query.onsuccess = async e => {
-        const books = e.target.result
-
-        console.log(e, books);
-        for (const book of books) {
-          const classBook = new EpubBook();
-          await classBook.loadFromFile(book.file);
-          this.books.push(classBook);
-          console.log("All books have been loaded");
-        }
-
-        this.render();
-      };
-    };
-
-    // DB setup (this is only called when there is no database, or the database
-    // version has been updated).
-    request.onupgradeneeded = e => {
-      console.log("Database created");
-      const db = e.target.result;
-      db.createObjectStore("books", { autoIncrement: true });
-    };
+      await this.render();
+    })().then(() => console.log("collection loaded"));
 
   }
 
@@ -51,24 +34,12 @@ class Collection {
     this.books[book.title] = book;
 
     // Book (Cover) element
-    const request = window.indexedDB.open("books-collection");
-    request.onsuccess = e => {
+    db.addBook(book);
+    console.log("book added succesfully");
 
-      const db = e.target.result;
-      const transaction = db.transaction(["books"], "readwrite")
-      const store = transaction.objectStore("books");
-      const query = store.add(book);
-
-      query.onsuccess = async () => {
-        console.log("book added succesfully");
-
-        await book.loadContent();
-        this.books.push(book);
-        await this.render();
-      }
-      query.onerror = e => console.log(e.target.error.message);
-    };
-
+    await book.loadContent();
+    this.books.push(book);
+    await this.render();
   }
 
   async render() {
@@ -86,7 +57,7 @@ class Collection {
       const card = document.createElement("a");
       column.appendChild(card);
       card.classList.add("card");
-      card.href = "/simple-epub-reader/reader.html?id=" + i
+      card.href = "../reader.html?id=" + i
 
       const cardImage = document.createElement("div");
       card.appendChild(cardImage);

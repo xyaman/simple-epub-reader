@@ -1,3 +1,5 @@
+import db from "./db.js"
+
 class Reader {
   constructor(readerElem, charsCounterElem) {
     // Corresponds to the index of the current book
@@ -96,24 +98,11 @@ const reader = new Reader(document.getElementById("reader"), document.getElement
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
 
-const request = window.indexedDB.open("books-collection");
-request.onerror = e => alert("couldn't load books collection database", e);
-request.onsuccess = e => {
-  const db = e.target.result;
-  console.log("books collection db opened correctly")
+// Improve this to avoid fetching all books
+const books = await db.getAllBooks();
+const book = new EpubBook()
+await book.loadFromFile(books[id].file);
+await book.loadContent();
 
-  const transaction = db.transaction(["books"])
-  const store = transaction.objectStore("books");
-
-  const query = store.getAll();
-  query.onsuccess = async e => {
-    const books = e.target.result
-    const book = new EpubBook()
-    await book.loadFromFile(books[id].file);
-    await book.loadContent();
-    console.log(books[id]);
-    console.log(book);
-    reader.setCurrentBook(book);
-  };
-};
+reader.setCurrentBook(book);
 
