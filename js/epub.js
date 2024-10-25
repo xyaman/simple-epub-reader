@@ -1,8 +1,12 @@
+//http://stackoverflow.com/questions/18679576/counting-words-in-string
+
 class EpubBook {
   constructor() {
     this.title = "";
     this.language = "";
     this.creator = "";
+
+    this.charactersRead = 0;
 
     // Array of all book html+xml content already sanitized to 
     // work with images
