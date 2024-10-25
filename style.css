@@ -2,12 +2,8 @@
   color: rgba(255, 255, 255, 0.87);
   font-size: 25px;
   line-height: 1.85;
-  /* 
-  padding-top: 58px;
-  padding-bottom: 58px;
-  */
-
-  padding: 8px 100px;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 *:has(> img),
@@ -18,4 +14,13 @@
 svg,
 img {
   max-height: 729px;
+}
+
+
+.character-counter {
+  z-index: 10;
+  right: .5rem;
+  bottom: .5rem;
+  position: fixed;
+  font-size: .75rem;
 }

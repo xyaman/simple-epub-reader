@@ -76,7 +76,11 @@ class EpubBook {
     // <item href="Images/embed0018_HD.jpg" properties="cover-image" id="embed0018_HD" media-type="image/jpeg" />
 
     const imagesItems = parsedContent.getElementsByTagName("item");
+    let backupimage;
     for (let i = 0; i < imagesItems.length; i++) {
+      if (imagesItems[i].getAttribute("media-type") == "image/jpeg")
+        backupimage = this.contentsPath + imagesItems[i].getAttribute("href");
+
       if (imagesItems[i].getAttribute("properties") == "cover-image") {
         const coverImagePath = this.contentsPath + imagesItems[i].getAttribute("href");
         const r = await zipEpub.file(coverImagePath).async("blob")
@@ -84,6 +88,11 @@ class EpubBook {
         return URL.createObjectURL(blob);
       }
     }
+
+    // Return last found image
+    const r = await zipEpub.file(backupimage).async("blob")
+    let blob = r.slice(0, r.size, "image/jpeg")
+    return URL.createObjectURL(blob);
   }
 
   async loadContent() {

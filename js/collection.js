@@ -37,7 +37,7 @@ class Collection {
     // DB setup (this is only called when there is no database, or the database
     // version has been updated).
     request.onupgradeneeded = e => {
-      console.log("here");
+      console.log("Database created");
       const db = e.target.result;
       db.createObjectStore("books", { autoIncrement: true });
     };
@@ -79,8 +79,13 @@ class Collection {
     columns.classList.add("columns", "is-mobile");
 
     for (let i = 0; i < this.books.length; i++) {
+
+      const column = document.createElement("div");
+      column.classList.add("column", "is-one-quarter-fullhd");
+
       const card = document.createElement("a");
-      card.classList.add("card", "column");
+      column.appendChild(card);
+      card.classList.add("card");
       card.href = "/simple-epub-reader/reader.html?id=" + i
 
       const cardImage = document.createElement("div");
@@ -89,13 +94,13 @@ class Collection {
 
       const cardFigure = document.createElement("figure")
       cardImage.appendChild(cardFigure);
-      cardFigure.classList.add("image", "is-4by3");
+      cardFigure.classList.add("image", "is-4by5");
 
       const cardImg = document.createElement("img");
       cardFigure.appendChild(cardImg);
       cardImg.src = await this.books[i].getCoverBlob();
 
-      columns.appendChild(card);
+      columns.appendChild(column);
     }
 
     this.elem.appendChild(columns);

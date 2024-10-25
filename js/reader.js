@@ -1,5 +1,5 @@
 class Reader {
-  constructor(readerElem) {
+  constructor(readerElem, charsCounterElem) {
     // Corresponds to the index of the current book
     this.current_book = null;
 
@@ -8,6 +8,7 @@ class Reader {
     this.lastReadIndex = 0;
 
     this.readerElem = readerElem
+    this.charsCounterElem = charsCounterElem;
 
     this.preferences = {
       fontSize: 25,
@@ -62,6 +63,8 @@ class Reader {
       this.paragraphsCharsAcum.push(totalChars); // Guarda la cantidad total de caracteres hasta este párrafo
     });
 
+    this.charsCounterElem.innerText = `0/${totalChars} (0%)`
+
     document.removeEventListener("scroll", this.handleScroll.bind(this));
     document.addEventListener("scroll", this.handleScroll.bind(this));
   }
@@ -80,15 +83,15 @@ class Reader {
     }
 
     if (lastReadIndex != this.lastReadIndex) {
-      // const progressPercentage = this.paragraphsCharsAcum[lastReadIndex] / this.paragraphsCharsAcum.slice(-1)[0] * 100;
-      // console.log(`Progreso de lectura: ${this.paragraphsCharsAcum[lastReadIndex]}/${this.paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`);
+      const progressPercentage = this.paragraphsCharsAcum[lastReadIndex] / this.paragraphsCharsAcum.slice(-1)[0] * 100;
+      this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastReadIndex]}/${this.paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
       this.lastReadIndex = lastReadIndex;
     }
 
   }
 }
 
-const reader = new Reader(document.getElementById("reader"));
+const reader = new Reader(document.getElementById("reader"), document.getElementById("character-counter"));
 // get id
 const urlParams = new URLSearchParams(window.location.search);
 const id = urlParams.get("id");
