@@ -68,6 +68,7 @@ class EpubBook {
 
     for (const textfile of textitems) {
 
+
       // We should ignore navigations file
       // TODO: if the textfile contains the attribute: properties="nav"
       // it should be treated as the navigation
@@ -77,7 +78,8 @@ class EpubBook {
       const parser = new DOMParser();
       const parsedContent = parser.parseFromString(content, "application/xml");
 
-      const body = parsedContent.getElementsByTagName("body")[0].children[0];
+      const body = document.createElement("div")
+      body.innerHTML = parsedContent.getElementsByTagName("body")[0].innerHTML;
 
       // We see if it has image, if it has, we change the link
       // TODO: If the textitem contains the attribute: properties="svg"
@@ -86,7 +88,6 @@ class EpubBook {
       const bodyimages = body.getElementsByTagName("image");
       if (bodyimages.length > 0) {
         let url = getFileName(bodyimages[0].getAttribute("xlink:href"));
-        console.log(images, url);
         [...bodyimages].forEach(image => image.setAttribute("xlink:href", images[url]));
       }
 
