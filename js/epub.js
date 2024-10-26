@@ -62,8 +62,8 @@ class EpubBook {
       title: this.title,
       language: this.language,
       creator: this.creator,
-      lastReadIndex: this.lastReadIndex | 0,
-      totalIndex: this.totalIndex | 0,
+      lastReadIndex: this.lastReadIndex || 0,
+      totalIndex: this.totalIndex || 0,
       file: this.file,
     }
   }
@@ -109,6 +109,7 @@ class EpubBook {
     return this.cache.zip;
   }
 
+  // TODO: save blobs to remove?
   async getCoverBlob() {
 
     const zipEpub = await this.loadEpub();
@@ -124,7 +125,7 @@ class EpubBook {
     let backupimage;
     for (let i = 0; i < imagesItems.length; i++) {
       if (imagesItems[i].getAttribute("media-type") == "image/jpeg")
-        backupimage = this.contentsPath + imagesItems[i].getAttribute("href");
+        backupimage = backupimage || this.contentsPath + imagesItems[i].getAttribute("href");
 
       if (imagesItems[i].getAttribute("properties") == "cover-image") {
         const coverImagePath = this.contentsPath + imagesItems[i].getAttribute("href");
