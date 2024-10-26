@@ -16,11 +16,28 @@ img {
   max-height: 729px;
 }
 
-
 .character-counter {
   z-index: 10;
   right: .5rem;
   bottom: .5rem;
   position: fixed;
   font-size: .75rem;
+}
+
+#card-container {
+  position: relative;
+}
+
+#card-container:hover>#delete-button {
+  z-index: 10;
+  position: absolute;
+  float: right;
+  margin: 5px 5px 0px 0px;
+  top: 0;
+  right: 0;
+  display: block;
+}
+
+#delete-button {
+  display: none;
 }

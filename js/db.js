@@ -31,9 +31,17 @@ async function addBook(book) {
   return await db.add(STORE_NAME, book)
 }
 
+/** Removes a book to the database.
+ * @param {number} key The book's id (key)
+ */
+async function removeBook(key) {
+  const db = await openDB(DATABASE_NAME, 1);
+  return await db.delete(STORE_NAME, key);
+}
+
 async function updateBookPosition(id, book) {
   const db = await openDB(DATABASE_NAME, 1);
   await db.put(STORE_NAME, book.asObject(), id);
 }
 
-export default { getAllBooks, getBookById, addBook, updateBookPosition };
+export default { getAllBooks, getBookById, addBook, removeBook, updateBookPosition };

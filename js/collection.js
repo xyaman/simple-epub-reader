@@ -36,7 +36,6 @@ class Collection {
 
     // Book (Cover) element
     console.log("book added succesfully");
-    console.log(this.books);
 
     await book.loadContent();
     this.books.push(book);
@@ -55,8 +54,12 @@ class Collection {
       const column = document.createElement("div");
       column.classList.add("column", "is-one-quarter-fullhd");
 
+      const cardContainer = document.createElement("div");
+      cardContainer.setAttribute("id", "card-container");
+      column.appendChild(cardContainer);
+
       const card = document.createElement("a");
-      column.appendChild(card);
+      cardContainer.appendChild(card);
       card.classList.add("card");
       card.href = "../reader.html?id=" + this.books[i].id
 
@@ -71,6 +74,19 @@ class Collection {
       const cardImg = document.createElement("img");
       cardFigure.appendChild(cardImg);
       cardImg.src = await this.books[i].getCoverBlob();
+
+
+      // <a class="tag is-delete"></a>
+      const removeButton = document.createElement("a");
+      removeButton.classList.add("tag", "is-delete");
+      removeButton.setAttribute("id", "delete-button");
+      cardContainer.appendChild(removeButton);
+
+      removeButton.onclick = async () => {
+        await db.removeBook(this.books[i].id);
+        this.books.splice(i, 1);
+        await this.render();
+      };
 
       columns.appendChild(column);
     }
@@ -89,4 +105,3 @@ document.getElementById("file-input").addEventListener('change', async function(
     collection.addBookFromFile(e.target.files[0]);
   }
 });
-
