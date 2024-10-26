@@ -15,12 +15,13 @@ class Collection {
       // Loads books from database 
       const books = await db.getAllBooks();
       console.log(books);
+
+
       for (const book of books) {
-        const classBook = new EpubBook(book.key);
-        await classBook.loadFromFile(book.value.file);
+        const classBook = await EpubBook.newFromExistingObject(book.key, book.value);
         this.books.push(classBook);
-        console.log("All books have been loaded");
       }
+      console.log("All books have been loaded");
 
       await this.render();
     })().then(() => console.log("collection loaded"));
@@ -29,13 +30,13 @@ class Collection {
 
   /** Loads a book from a file */
   async addBookFromFile(file) {
-    const book = new EpubBook();
-    await book.loadFromFile(file);
-    this.books[book.title] = book;
+    const book = await EpubBook.newFromFile(file);
+    const key = await db.addBook(book);
+    book.id = key;
 
     // Book (Cover) element
-    db.addBook(book);
     console.log("book added succesfully");
+    console.log(this.books);
 
     await book.loadContent();
     this.books.push(book);
@@ -57,7 +58,7 @@ class Collection {
       const card = document.createElement("a");
       column.appendChild(card);
       card.classList.add("card");
-      card.href = "/simple-epub-reader/reader.html?id=" + i
+      card.href = "../reader.html?id=" + this.books[i].id
 
       const cardImage = document.createElement("div");
       card.appendChild(cardImage);

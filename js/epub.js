@@ -1,19 +1,25 @@
 //http://stackoverflow.com/questions/18679576/counting-words-in-string
 
 class EpubBook {
-  constructor(id, lastReadIndex) {
-    this.id = id;
+
+
+  constructor() {
+    this.id = -1;
     this.title = "";
     this.language = "";
     this.creator = "";
 
-    this.lastReadIndex = lastReadIndex;
-    // this.totalIndex = 0;
+    this.lastReadIndex = -1;
+    // We must use this in order to get the current percentage
+    // This should be initialized when it's first open by the reader
+    this.totalIndex = 0;
+
+    this.file = null;
 
     // Array of all book html+xml content already sanitized to 
     // work with images
     this.textHTML = [];
-    this.file = null;
+
     this.contentFile = null;
     this.contentsPath = "";
 
@@ -24,6 +30,33 @@ class EpubBook {
     };
   }
 
+  static async newFromExistingObject(id, object) {
+    const book = new EpubBook();
+
+    book.id = id;
+    book.title = object.title;
+    book.language = object.language;
+    book.creator = object.creator;
+    book.lastReadIndex = object.lastReadIndex | 0;
+    book.totalIndex = object.totalIndex | 0;
+    book.file = object.file;
+
+    await book.loadFromFile();
+
+    return book;
+  }
+
+  static async newFromFile(file) {
+    const book = new EpubBook();
+    book.file = file;
+    await book.loadFromFile();
+
+    return book;
+  }
+
+  /** This functions returns a object ready to be saved into indexedDB 
+   * Note: this object MUST be used when saving in the db.
+   * */
   asObject() {
     return {
       title: this.title,
@@ -35,13 +68,12 @@ class EpubBook {
     }
   }
 
-  async loadFromFile(file) {
+  async loadFromFile() {
 
     // Why we dont use loadEpub()? Because we dont want to save the zip to the
     // as a property. This function is only called when the book is added to the 
     // collection
-    const zip = await JSZip.loadAsync(file)
-    this.file = file;
+    const zip = await JSZip.loadAsync(this.file)
 
     // We must first read META-INF/container.xml
     const container = await zip.file("META-INF/container.xml").async("text")
@@ -113,7 +145,6 @@ class EpubBook {
 
     const dateBefore = new Date();
     const zip = await this.loadEpub();
-    console.log(zip);
 
     // We must first read META-INF/container.xml
     const container = await zip.file("META-INF/container.xml").async("text")

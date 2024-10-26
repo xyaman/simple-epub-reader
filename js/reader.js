@@ -12,6 +12,11 @@ class Reader {
     this.readerElem = readerElem
     this.charsCounterElem = charsCounterElem;
 
+    // This variable is used to not update the database position
+    // on the first call of scroll
+    // TODO: consider using a timeout
+    this.shouldUpdateChars = false;
+
     this.preferences = {
       fontSize: 25,
     };
@@ -24,7 +29,10 @@ class Reader {
     this.readerElem.style.fontSize = `${this.preferences.fontSize}px`;
   }
 
-  setCurrentBook(book) {
+  async setCurrentBook(book) {
+
+    await book.loadContent();
+
     this.book = book
     this.readerElem.innerHTML = '';
     this.paragraphsCharsAcum = []
@@ -36,9 +44,9 @@ class Reader {
 
     // Get all characters per paragraph
     this.paragraphs = this.readerElem.querySelectorAll("p");
+    this.book.totalIndex = this.paragraphs.length - 1;
     for (let i = 0; i < this.paragraphs.length; i++) {
       this.paragraphs[i].setAttribute("data-index", i);
-      this.book.totalIndex = i;
     }
 
     const isNotJapaneseRegex =
@@ -67,7 +75,7 @@ class Reader {
     });
 
     // Move the reader to the current position
-    if (this.book.lastReadIndex) {
+    if (this.book.lastReadIndex && this.book.lastReadIndex !== -1) {
       this.paragraphs[this.book.lastReadIndex].scrollIntoView();
     }
 
@@ -78,6 +86,7 @@ class Reader {
   }
 
   handleScroll() {
+
     let lastReadIndex = 0;
 
     for (let i = 0; i < this.paragraphs.length; i++) {
@@ -93,10 +102,13 @@ class Reader {
     if (lastReadIndex != this.book.lastReadIndex) {
       const progressPercentage = this.paragraphsCharsAcum[lastReadIndex] / this.paragraphsCharsAcum.slice(-1)[0] * 100;
       this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastReadIndex]}/${this.paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
-      this.book.lastReadIndex = lastReadIndex;
 
-      // Update into the db every time?
-      db.updateBookPosition(this.bookID, this.book);
+      if (this.shouldUpdateChars) {
+        // Update into the db every time?
+        this.book.lastReadIndex = lastReadIndex;
+        db.updateBookPosition(this.book.id, this.book);
+      }
+      this.shouldUpdateChars = true;
     }
 
   }
@@ -105,16 +117,10 @@ class Reader {
 const reader = new Reader(document.getElementById("reader"), document.getElementById("character-counter"));
 // get id
 const urlParams = new URLSearchParams(window.location.search);
-const id = urlParams.get("id");
+const id = parseInt(urlParams.get("id"));
 
 // Improve this to avoid fetching all books
-const books = await db.getAllBooks();
-
-const book = new EpubBook(parseInt(id))
-await book.loadFromFile(books[id].value.file);
-await book.loadContent();
-reader.bookID = books[id].key;
-book.lastReadIndex = books[id].value.lastReadIndex;
-
-reader.setCurrentBook(book);
+const bookObject = await db.getBookById(id);
+const book = await EpubBook.newFromExistingObject(id, bookObject)
+await reader.setCurrentBook(book);
 
