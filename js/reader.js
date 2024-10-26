@@ -1,4 +1,5 @@
 import db from "./db.js"
+import settings from "./settings.js"
 
 class Reader {
   constructor(readerElem, charsCounterElem) {
@@ -17,9 +18,8 @@ class Reader {
     // TODO: consider using a timeout
     this.shouldUpdateChars = false;
 
-    this.preferences = {
-      fontSize: 25,
-    };
+    /** @type {settings.Setting} */
+    this.preferences = settings.load();
 
     this.updateElemStyle();
   }
