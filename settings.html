@@ -32,18 +32,27 @@
           <a class="button is-static">px</a>
         </div>
       </div>
+
+      <label class="label">Continuous Mode</label>
+      <label class="checkbox">
+        <input type="checkbox" id="continuousMode" />
+        Use continuous mode?
+      </label>
     </div>
   </div>
 
   <script type="module">
     import settings from "./js/settings.js"
 
-    const fontItem = document.getElementById("fontSize");
     let currentSettings = settings.load();
     console.log(currentSettings);
 
+    const fontItem = document.getElementById("fontSize");
+    const continousModeItem = document.getElementById("continuousMode");
+
     // set default values
     fontItem.value = currentSettings.fontSize;
+    continousModeItem.checked = currentSettings.isContinuousReader;
 
     fontItem.addEventListener("change", e => {
       try {
@@ -53,8 +62,14 @@
       } catch {
         return
       }
-
     });
+
+    continousModeItem.addEventListener("change", e => {
+      console.log(e.target.value);
+      currentSettings = {...currentSettings, isContinuousReader: e.target.checked}
+      settings.update(currentSettings);
+    });
+
   </script>
 
 </body>

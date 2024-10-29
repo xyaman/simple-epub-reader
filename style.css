@@ -1,6 +1,6 @@
 #reader {
   color: rgba(255, 255, 255, 0.87);
-  background-color: hsl(221, 14, 9);
+  background-color: hsl(221, 14%, 9%);
   font-size: 25px;
   line-height: 1.85;
   padding-top: 8px;
@@ -12,9 +12,9 @@
   text-align: center;
 }
 
-svg,
-img {
-  max-height: 729px;
+#reader svg,
+#reader img {
+  max-width: 90%;
 }
 
 .character-counter {

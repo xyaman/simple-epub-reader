@@ -2,8 +2,15 @@ const SETTINGS_KEY = "settings";
 
 /**
  * @typedef Settings
+ * @prop {isContinuousReader} boolean true: continous / false: paginated
  * @prop {number} fontSize
 */
+
+/** @type {Settings} */
+const DEFAULT_SETTINGS = {
+  isContinuousReader: true,
+  fontSize: 25,
+};
 
 /**
  * This function loads the settings from the localStorage, if its null
@@ -13,13 +20,11 @@ const SETTINGS_KEY = "settings";
 function load() {
   const settings = window.localStorage.getItem(SETTINGS_KEY);
   if (!settings) {
-    // 
-    return {
-      fontSize: 25,
-    }
+    return DEFAULT_SETTINGS;
   }
 
-  return JSON.parse(settings);
+  const currentSettings = JSON.parse(settings);
+  return { ...DEFAULT_SETTINGS, ...currentSettings };
 }
 
 /**

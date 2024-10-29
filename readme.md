@@ -3,6 +3,7 @@
 ## Features
 - Lightweight.
 - Read epub books.
+- Paginated y continous (scroll) mode.
 - Save books (library)
 - Reader preferences (font size, ...).
 - Reader saves the book progress.
