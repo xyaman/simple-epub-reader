@@ -64,6 +64,7 @@ class Reader {
   /** Updates the elements css based on the reader preferences */
   updateReaderStyle() {
     this.readerElem.style.fontSize = `${this.preferences.fontSize}px`;
+    this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
   }
 
   /** Sets a new book and prepares the prepares the reader to show the book.
@@ -156,7 +157,8 @@ class Reader {
 
   #setupPaginated() {
     this.readerElem.style.overflow = "hidden";
-    this.readerElem.style.height = "85vh";
+    this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
+    // this.readerElem.style.height = "85vh";
 
     // Create all the pages, should be called again after resize event
     const paginateContent = () => {
@@ -237,6 +239,7 @@ class Reader {
     });
 
     window.addEventListener("resize", () => {
+      this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
       // TODO: Find a better way?
       this.bookContentElem.innerHTML = "";
 
