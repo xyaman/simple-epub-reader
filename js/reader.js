@@ -158,6 +158,11 @@ class Reader {
   #setupPaginated() {
     this.readerElem.style.overflow = "hidden";
     this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
+
+    // IOS bouncing
+    document.documentElement.style.overscrollBehavior = "none";
+    document.body.style.overscrollBehavior = "none";
+
     // this.readerElem.style.height = "85vh";
 
     // Create all the pages, should be called again after resize event
@@ -272,9 +277,6 @@ class Reader {
       }
 
     });
-
-    // IOS bouncing
-    document.body.addEventListener('touchmove', preventDefault, { passive: false });
   }
 
   /** Creates a page and push it to this.page
