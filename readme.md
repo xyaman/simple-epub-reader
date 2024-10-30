@@ -22,9 +22,15 @@ Or try the github page (production branch): https://xyaman.github.io/simple-epub
 
 
 ## TODO:
-- Navigation
-- User settings
+- Better UI (See book progress in collection page)
+- Epub navigation support
+- More user settings (themes, line height, better ui).
 - Fully responsive
 - PWA
 - Vertical text (japanese)
 - Synchronization (server?)
+
+
+## Libraries
+- [Stuck/jszip](https://github.com/Stuk/jszip)
+- [jakearchibald/idb](https://github.com/jakearchibald/idb) 
