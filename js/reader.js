@@ -254,12 +254,10 @@ class Reader {
 
     // Swipe Support
     document.addEventListener("touchstart", e => {
-      e.preventDefault();
       this.#swipeStartX = e.changedTouches[0].screenX;
     });
 
     document.addEventListener("touchend", e => {
-      e.preventDefault();
       this.#swipeEndX = e.changedTouches[0].screenX;
 
       const diff = Math.abs(this.#swipeEndX - this.#swipeStartX);
@@ -274,6 +272,9 @@ class Reader {
       }
 
     });
+
+    // IOS bouncing
+    document.body.addEventListener('touchmove', preventDefault, { passive: false });
   }
 
   /** Creates a page and push it to this.page
