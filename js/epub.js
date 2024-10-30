@@ -1,7 +1,6 @@
 //http://stackoverflow.com/questions/18679576/counting-words-in-string
 
-class EpubBook {
-
+export class EpubBook {
 
   constructor() {
     this.id = -1;

@@ -33,10 +33,10 @@
         </div>
       </div>
 
-      <label class="label">Continuous Mode</label>
+      <label class="label">Paginated Mode</label>
       <label class="checkbox">
-        <input type="checkbox" id="continuousMode" />
-        Use continuous mode?
+        <input type="checkbox" id="paginatedMode" />
+        Use paginated mode?
       </label>
     </div>
   </div>
@@ -48,11 +48,11 @@
     console.log(currentSettings);
 
     const fontItem = document.getElementById("fontSize");
-    const continousModeItem = document.getElementById("continuousMode");
+    const isPaginatedItem = document.getElementById("paginatedMode");
 
     // set default values
     fontItem.value = currentSettings.fontSize;
-    continousModeItem.checked = currentSettings.isContinuousReader;
+    isPaginatedItem.checked = currentSettings.readerIsPaginated;
 
     fontItem.addEventListener("change", e => {
       try {
@@ -64,9 +64,9 @@
       }
     });
 
-    continousModeItem.addEventListener("change", e => {
+    isPaginatedItem.addEventListener("change", e => {
       console.log(e.target.value);
-      currentSettings = {...currentSettings, isContinuousReader: e.target.checked}
+      currentSettings = {...currentSettings, readerIsPaginated: e.target.checked}
       settings.update(currentSettings);
     });
 

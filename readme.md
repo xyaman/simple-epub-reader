@@ -24,8 +24,7 @@ Or try the github page (production branch): https://xyaman.github.io/simple-epub
 ## TODO:
 - Navigation
 - User settings
-- Responsive
+- Fully responsive
 - PWA
-- Page support (Currently only scroll).
 - Vertical text (japanese)
 - Synchronization (server?)

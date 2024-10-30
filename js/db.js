@@ -1,3 +1,4 @@
+import { EpubBook } from "./epub.js";
 import { openDB } from "./libs/umd.js";
 
 const DATABASE_NAME = "epub-reader"
@@ -39,9 +40,12 @@ async function removeBook(key) {
   return await db.delete(STORE_NAME, key);
 }
 
-async function updateBookPosition(id, book) {
+/**
+ * @param {import("./epub.js").EpubBook} book The book to update
+ */
+async function updateBookPosition(book) {
   const db = await openDB(DATABASE_NAME, 1);
-  await db.put(STORE_NAME, book.asObject(), id);
+  await db.put(STORE_NAME, book.asObject(), book.id);
 }
 
 export default { getAllBooks, getBookById, addBook, removeBook, updateBookPosition };

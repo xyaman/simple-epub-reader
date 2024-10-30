@@ -2,13 +2,13 @@ const SETTINGS_KEY = "settings";
 
 /**
  * @typedef Settings
- * @prop {isContinuousReader} boolean true: continous / false: paginated
+ * @prop {boolean} readerIsPaginated true: continous / false: paginated
  * @prop {number} fontSize
 */
 
 /** @type {Settings} */
 const DEFAULT_SETTINGS = {
-  isContinuousReader: true,
+  readerIsPaginated: true,
   fontSize: 25,
 };
 

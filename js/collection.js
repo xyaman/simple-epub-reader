@@ -1,3 +1,4 @@
+import { EpubBook } from "./epub.js"
 import db from "./db.js"
 
 /** Represents the collection of books 

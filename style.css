@@ -14,6 +14,7 @@
 
 #reader svg,
 #reader img {
+  max-height: 729px;
   max-width: 90%;
 }
 
