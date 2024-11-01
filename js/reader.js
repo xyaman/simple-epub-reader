@@ -126,13 +126,13 @@ class Reader {
       this.#paragraphs[this.current_book.lastReadIndex].scrollIntoView();
     }
 
-    document.removeEventListener("scroll", this.#handleScroll.bind(this));
-    document.addEventListener("scroll", this.#handleScroll.bind(this));
+    document.removeEventListener("scroll", this.#continousHandleScroll.bind(this));
+    document.addEventListener("scroll", this.#continousHandleScroll.bind(this));
   }
 
   // TODO: Use timeout? Reduce the calls 
   /** Continous Mode Reader: Handles the scroll */
-  #handleScroll() {
+  #continousHandleScroll() {
     let lastReadIndex = 0;
 
     for (let i = 0; i < this.#paragraphs.length; i++) {
@@ -177,10 +177,15 @@ class Reader {
       // We go trough all the elements that should be rendered
       const elems = this.bookContentElem.querySelectorAll("p, img, svg");
       for (let i = 0; i < elems.length; i++) {
-        /** @type {HTMLElement} */
 
         const elemHeight = elems[i].offsetHeight;
         const elem = elems[i].cloneNode(true);
+
+        // TODO: Temporal solution to duplicated images.
+        // Sometimes images are inside <p>, so they are added 2 times in this 
+        // loop. Ideas:
+        // - Mark all images, and prevent images with same id
+        if (elem.localName === "p" && elem.querySelectorAll("img").length > 0) continue;
 
         // We force the image to be inside limits
         if (elem.localName === "svg" || elem.localName === "img") {
@@ -198,48 +203,26 @@ class Reader {
 
           // Usually there is an image (cover) as first element, so the first
           // page is empty
-          if (currentPageContent.length > 0) this.#createPage(currentPageContent);
+          if (currentPageContent.length > 0) this.#paginatedCreatePage(currentPageContent);
           currentPageContent = [elem];
           currentPageHeight = elemHeight;
         }
       }
       // After the loop, we add the page if there is content
       if (currentPageContent.length > 0) {
-        this.#createPage(currentPageContent);
+        this.#paginatedCreatePage(currentPageContent);
       }
     };
 
-    const goToPage = pageIndex => {
-      this.#currentPageIndex = Math.max(0, Math.min(pageIndex, this.#pages.length - 1));
-
-      this.bookContentElem.innerHTML = "";
-      this.bookContentElem.appendChild(this.#pages[this.#currentPageIndex]);
-
-      // To prevent going further when there are images
-      let lastValidIndex = this.current_book.lastReadIndex - 1;
-      const lastParagraph = this.#pages[this.#currentPageIndex].querySelector("p");
-      if (lastParagraph) {
-        const lastIndex = lastParagraph.getAttribute("data-index") || null;
-        lastValidIndex = lastIndex ? Math.max(parseInt(lastIndex) - 1, 0) : this.current_book.lastReadIndex;
-      }
-
-      if (lastParagraph) {
-        this.current_book.lastReadIndex = lastValidIndex + 1;
-      }
-      const progressPercentage = this.#paragraphsCharsAcum[lastValidIndex] / this.#paragraphsCharsAcum.slice(-1)[0] * 100;
-      this.charsCounterElem.innerText = `${this.#paragraphsCharsAcum[lastValidIndex]}/${this.#paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
-
-      db.updateBookPosition(this.current_book);
-    }
 
     paginateContent();
-    goToPage(this.#currentPageIndex);
+    this.goToPage(this.#currentPageIndex);
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowDown" || e.key === "PageDown") {
-        goToPage(this.#currentPageIndex + 1);
+        this.goToPage(this.#currentPageIndex + 1);
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-        goToPage(this.#currentPageIndex - 1);
+        this.goToPage(this.#currentPageIndex - 1);
       }
     });
 
@@ -254,7 +237,7 @@ class Reader {
       this.#paragraphs = this.bookContentElem.querySelectorAll("p");
 
       paginateContent();
-      goToPage(this.#currentPageIndex);
+      this.goToPage(this.#currentPageIndex);
     });
 
     // Swipe Support
@@ -271,18 +254,22 @@ class Reader {
 
       // Swipe left
       if (this.#swipeEndX < this.#swipeStartX) {
-        goToPage(this.#currentPageIndex + 1);
+        this.goToPage(this.#currentPageIndex + 1);
       } else {
-        goToPage(this.#currentPageIndex - 1);
+        this.goToPage(this.#currentPageIndex - 1);
       }
+
+      console.log(this.#pages[this.#currentPageIndex]);
 
     });
   }
 
-  /** Creates a page and push it to this.page
+  /** Creates a page and push it to this.page.
+   * Note: This function only works if the reader is in paginated mode
    * @param {HTMLElement} elems
    */
-  #createPage(elems) {
+  #paginatedCreatePage(elems) {
+    if (!this.preferences.readerIsPaginated) return;
 
     const pageDiv = document.createElement("div");
     pageDiv.classList.add("page");
@@ -297,6 +284,29 @@ class Reader {
     }
 
     this.#pages.push(pageDiv);
+  }
+
+  goToPage(pageIndex) {
+    this.#currentPageIndex = Math.max(0, Math.min(pageIndex, this.#pages.length - 1));
+
+    this.bookContentElem.innerHTML = "";
+    this.bookContentElem.appendChild(this.#pages[this.#currentPageIndex]);
+
+    // To prevent going further when there are images
+    let lastValidIndex = this.current_book.lastReadIndex - 1;
+    const lastParagraph = this.#pages[this.#currentPageIndex].querySelector("p");
+    if (lastParagraph) {
+      const lastIndex = lastParagraph.getAttribute("data-index") || null;
+      lastValidIndex = lastIndex ? Math.max(parseInt(lastIndex) - 1, 0) : this.current_book.lastReadIndex;
+    }
+
+    if (lastParagraph) {
+      this.current_book.lastReadIndex = lastValidIndex + 1;
+    }
+    const progressPercentage = this.#paragraphsCharsAcum[lastValidIndex] / this.#paragraphsCharsAcum.slice(-1)[0] * 100;
+    this.charsCounterElem.innerText = `${this.#paragraphsCharsAcum[lastValidIndex]}/${this.#paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
+
+    db.updateBookPosition(this.current_book);
   }
 }
 
