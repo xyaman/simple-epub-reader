@@ -16,7 +16,7 @@
       <p class="has-text-light">Settings</p>
 
       <div class="right-content">
-        <a href="javascript:history.back()" class="has-text-light">
+        <a href="javascript:window.location.replace(document.referrer)" class="has-text-light">
           <span class="icon">
             <i class="fa-solid fa-right-from-bracket"></i>
           </span>
@@ -73,7 +73,6 @@
       currentSettings = {...currentSettings, readerIsPaginated: e.target.checked}
       settings.update(currentSettings);
     });
-
   </script>
 
 </body>
