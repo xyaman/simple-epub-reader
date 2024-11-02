@@ -75,3 +75,17 @@ nav.custom-navbar {
 #delete-button {
   display: none;
 }
+
+progress.progress {
+  z-index: 10;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: block;
+  float: right;
+  width: 100%;
+}
+
+a.card {
+  --bulma-card-radius: 0px;
+}

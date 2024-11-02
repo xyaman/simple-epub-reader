@@ -6,6 +6,8 @@ import db from "./db.js"
  * */
 class Collection {
   constructor(elem) {
+
+    /** @type {EpubBook[]} */
     this.books = []
 
     /** @type {HTMLElement} */
@@ -53,7 +55,7 @@ class Collection {
     for (let i = 0; i < this.books.length; i++) {
 
       const column = document.createElement("div");
-      column.classList.add("column", "is-half-mobile", "is-one-third-tablet", "is-one-quarter-fullhd");
+      column.classList.add("column", "is-half-mobile", "is-one-third-tablet", "is-one-quarter-desktop", "is-one-fifth-fullhd");
 
       const cardContainer = document.createElement("div");
       cardContainer.setAttribute("id", "card-container");
@@ -70,18 +72,24 @@ class Collection {
 
       const cardFigure = document.createElement("figure")
       cardImage.appendChild(cardFigure);
-      cardFigure.classList.add("image");
+      cardFigure.classList.add("image", "is-3by4");
 
       const cardImg = document.createElement("img");
       cardFigure.appendChild(cardImg);
+      cardImg.style.objectFit = "cover";
       cardImg.src = await this.books[i].getCoverBlob();
 
-
-      // <a class="tag is-delete"></a>
       const removeButton = document.createElement("a");
-      removeButton.classList.add("tag", "is-delete");
+      removeButton.classList.add("tag", "is-delete"); // style.css
       removeButton.setAttribute("id", "delete-button");
       cardContainer.appendChild(removeButton);
+
+      const progress = document.createElement("progress");
+      progress.classList.add("progress", "is-radiusless");
+      progress.setAttribute("value", this.books[i].lastReadIndex || 0);
+      progress.setAttribute("max", this.books[i].totalIndex || 1);
+
+      cardContainer.appendChild(progress);
 
       removeButton.onclick = async () => {
         await db.removeBook(this.books[i].id);

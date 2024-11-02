@@ -327,7 +327,6 @@ async function main() {
   const urlParams = new URLSearchParams(window.location.search);
   const id = parseInt(urlParams.get("id"));
 
-  // Improve this to avoid fetching all books
   const bookObject = await db.getBookById(id);
   if (bookObject) {
     const book = await EpubBook.newFromExistingObject(id, bookObject)
