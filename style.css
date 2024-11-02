@@ -1,5 +1,33 @@
 body {
+  /* Prevent scrolling in paginated mode iOS */
   overscroll-behavior: none
+}
+
+/* Add a top margin to avoid content overlay */
+main {
+  margin-top: 30px;
+}
+
+nav.custom-navbar {
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 11;
+  background-color: black;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 30px;
+}
+
+.right-content {
+  display: flex;
+  column-gap: 30px;
+  align-items: center;
 }
 
 #reader {
@@ -24,7 +52,7 @@ body {
 
 .character-counter {
   z-index: 10;
-  right: .5rem;
+  rig ht: .5rem;
   bottom: .5rem;
   position: fixed;
   font-size: .75rem;

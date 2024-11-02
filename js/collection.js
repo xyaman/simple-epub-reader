@@ -48,12 +48,12 @@ class Collection {
 
     // Main container
     const columns = document.createElement("div");
-    columns.classList.add("columns", "is-mobile");
+    columns.classList.add("columns", "is-multiline", "is-mobile");
 
     for (let i = 0; i < this.books.length; i++) {
 
       const column = document.createElement("div");
-      column.classList.add("column", "is-one-quarter-fullhd");
+      column.classList.add("column", "is-half-mobile", "is-one-third-tablet", "is-one-quarter-fullhd");
 
       const cardContainer = document.createElement("div");
       cardContainer.setAttribute("id", "card-container");
@@ -70,7 +70,7 @@ class Collection {
 
       const cardFigure = document.createElement("figure")
       cardImage.appendChild(cardFigure);
-      cardFigure.classList.add("image", "is-4by5");
+      cardFigure.classList.add("image");
 
       const cardImg = document.createElement("img");
       cardFigure.appendChild(cardImg);

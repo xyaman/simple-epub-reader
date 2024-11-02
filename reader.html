@@ -5,11 +5,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Reader</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
   <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
+  <button style="top:0;position:fixed;width:100%;left:0;right:0;height:2rem;z-index:10" onclick="showNavbar()"></button>
+  <nav class="custom-navbar" role="navigation" aria-label="main navigation">
+    <div class="navbar-content">
+      <p class="has-text-light">Reader</p>
+
+      <div class="right-content">
+        <a href="./settings.html" class="has-text-light">
+          <span class="icon">
+            <i class="fa-solid fa-gear"></i>
+          </span>
+        </a>
+        <a href="./index.html" class="has-text-light">
+          <span class="icon">
+            <i class="fa-solid fa-house"></i>
+          </span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
   <section class="section">
     <div class="container is-max-widescreen">
       <div id="reader">
@@ -21,6 +42,15 @@
 
   <script src="js/libs/jszip.min.js"></script>
   <script type="module" src="js/reader.js"></script>
+  <script>
+    function showNavbar() {
+      document.querySelector("nav.custom-navbar").style.display = "block";
+    }
+
+    document.querySelector("#reader").addEventListener("click", e => {
+      document.querySelector("nav.custom-navbar").style.display = "none";
+    });
+  </script>
 
 </body>
 

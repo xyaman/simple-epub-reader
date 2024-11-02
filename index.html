@@ -11,41 +11,34 @@
 </head>
 
 <body>
-  <nav class="navbar" role="navigation" aria-label="main navigation">
-    <div id="navbarBasicExample" class="navbar-menu is-active">
-      <div class="navbar-start">
-        <p class="navbar-item">
-          EPUB Reader
-        </p>
-      </div>
+  <nav class="custom-navbar" role="navigation">
+    <div class="navbar-content">
+      <p class="has-text-light">Library</p>
 
-      <div class="navbar-end">
-        <div class="navbar-item">
-          <a href="../settings.html" class="navbar-item">
-            Settings
-          </a>
-          <div class="file">
-            <label class="file-label">
-              <input id="file-input" class="file-input" type="file" name="resume" accept=".epub" />
-              <span class="file-cta">
-                <span class="file-icon">
-                  <i class="fas fa-upload"></i>
-                </span>
-                <span class="file-label"> Upload a book </span>
-              </span>
-            </label>
-          </div>
+      <div class="right-content">
+        <a href="../settings.html" class="has-text-light">
+          <span class="icon">
+            <i class="fas fa-gear"></i>
+          </span>
+        </a>
+
+        <div>
+          <label for="file-input" class="icon has-text-light">
+            <i class="fas fa-upload"></i>
+          </label>
+          <input id="file-input" style="display:none;" type="file" accept=".epub" />
         </div>
       </div>
     </div>
   </nav>
+  <main>
+    <div class="section">
+      <div class="container">
+        <div id="books-container"></div>
 
-  <div class="section">
-    <div class="container">
-      <div id="books-container"></div>
-
+      </div>
     </div>
-  </div>
+  </main>
 
   <script src="js/libs/jszip.min.js"></script>
   <script type="module" src="js/collection.js"></script>
