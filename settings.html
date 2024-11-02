@@ -11,7 +11,7 @@
 </head>
 
 <body>
-  <nav class="navbar" role="navigation" aria-label="main navigation">
+  <nav class="custom-navbar" role="navigation">
     <div class="navbar-content">
       <p class="has-text-light">Settings</p>
 
@@ -25,25 +25,27 @@
     </div>
   </nav>
 
-  <div class="section">
-    <div class="container">
-      <label class="label">Font Size</label>
-      <div class="field has-addons">
-        <p class="control">
-          <input id="fontSize" class="input" type="number" placeholder="25" />
-        </p>
-        <div class="control">
-          <a class="button is-static">px</a>
+  <main>
+    <div class="section">
+      <div class="container">
+        <label class="label">Font Size</label>
+        <div class="field has-addons">
+          <p class="control">
+            <input id="fontSize" class="input" type="number" placeholder="25" />
+          </p>
+          <div class="control">
+            <a class="button is-static">px</a>
+          </div>
         </div>
-      </div>
 
-      <label class="label">Paginated Mode</label>
-      <label class="checkbox">
-        <input type="checkbox" id="paginatedMode" />
-        Use paginated mode?
-      </label>
+        <label class="label">Paginated Mode</label>
+        <label class="checkbox">
+          <input type="checkbox" id="paginatedMode" />
+          Use paginated mode?
+        </label>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script type="module">
     import settings from "./js/settings.js"
