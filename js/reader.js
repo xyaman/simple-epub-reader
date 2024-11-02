@@ -175,17 +175,13 @@ class Reader {
       this.#currentPageIndex = 0;
 
       // We go trough all the elements that should be rendered
-      const elems = this.bookContentElem.querySelectorAll("p, img, svg");
+      // <p>: but ony <p> that doesn't contain img
+      // <img> <svg> tags, images
+      const elems = this.bookContentElem.querySelectorAll("p:not(:has(img)), img, svg");
       for (let i = 0; i < elems.length; i++) {
 
         const elemHeight = elems[i].offsetHeight;
         const elem = elems[i].cloneNode(true);
-
-        // TODO: Temporal solution to duplicated images.
-        // Sometimes images are inside <p>, so they are added 2 times in this 
-        // loop. Ideas:
-        // - Mark all images, and prevent images with same id
-        if (elem.localName === "p" && elem.querySelectorAll("img").length > 0) continue;
 
         // We force the image to be inside limits
         if (elem.localName === "svg" || elem.localName === "img") {
