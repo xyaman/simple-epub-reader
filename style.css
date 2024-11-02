@@ -52,7 +52,7 @@ nav.custom-navbar {
 
 .character-counter {
   z-index: 10;
-  rig ht: .5rem;
+  right: .5rem;
   bottom: .5rem;
   position: fixed;
   font-size: .75rem;
