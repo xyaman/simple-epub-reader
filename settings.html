@@ -16,7 +16,7 @@
       <p class="has-text-light">Settings</p>
 
       <div class="right-content">
-        <a href="javascript:window.location.replace(document.referrer)" class="has-text-light">
+        <a id="go-back" class="has-text-light">
           <span class="icon">
             <i class="fa-solid fa-right-from-bracket"></i>
           </span>
@@ -48,6 +48,7 @@
   <script type="module">
     import settings from "./js/settings.js"
 
+
     let currentSettings = settings.load();
     console.log(currentSettings);
 
@@ -69,9 +70,20 @@
     });
 
     isPaginatedItem.addEventListener("change", e => {
-      console.log(e.target.value);
       currentSettings = {...currentSettings, readerIsPaginated: e.target.checked}
       settings.update(currentSettings);
+    });
+
+
+    // Other listeners
+    document.getElementById("go-back").addEventListener("click", () => {
+      if (document.referrer) {
+        window.location.replace(document.referrer);
+        return;
+      }
+
+      window.location.href = "/simple-epub-reader/index.html";
+
     });
   </script>
 

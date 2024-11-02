@@ -75,7 +75,7 @@ class Reader {
     this.current_book = book;
     await book.loadContent();
 
-    // TODO: Use a temporal (or not rendered component)
+    // TODO: See if it is possible to use a temporal (or not rendered component)
     // document.createElement
     for (const html of this.current_book.textHTML) {
       this.bookContentElem.append(html);
@@ -245,7 +245,6 @@ class Reader {
       this.#swipeEndX = e.changedTouches[0].screenX;
 
       const diff = Math.abs(this.#swipeEndX - this.#swipeStartX);
-      console.log(diff, this.#swipeStartX, this.#swipeEndX);
       if (diff < 30) return;
 
       // Swipe left
@@ -319,15 +318,21 @@ function countUnicodeCharacters(s) {
   return Array.from(s).length;
 }
 
-const reader = new Reader(document.getElementById("reader"), document.getElementById("character-counter"));
 
-// TODO: Handle invalid (or null) id
-const urlParams = new URLSearchParams(window.location.search);
-const id = parseInt(urlParams.get("id"));
+// MAIN
+async function main() {
+  const reader = new Reader(document.getElementById("reader"), document.getElementById("character-counter"));
 
-// Improve this to avoid fetching all books
-const bookObject = await db.getBookById(id);
-if (bookObject) {
-  const book = await EpubBook.newFromExistingObject(id, bookObject)
-  await reader.setCurrentBook(book);
+  // TODO: Handle invalid (or null) id
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = parseInt(urlParams.get("id"));
+
+  // Improve this to avoid fetching all books
+  const bookObject = await db.getBookById(id);
+  if (bookObject) {
+    const book = await EpubBook.newFromExistingObject(id, bookObject)
+    await reader.setCurrentBook(book);
+  }
 }
+
+document.addEventListener("DOMContentLoaded", main);

@@ -97,7 +97,13 @@ class Collection {
 
 }
 
-const collection = new Collection(document.getElementById("books-container"));
+
+// MAIN
+let collection;
+
+document.addEventListener("DOMContentLoaded", () => {
+  collection = new Collection(document.getElementById("books-container"));
+});
 
 // Process the epub file
 document.getElementById("file-input").addEventListener('change', async function(e) {
