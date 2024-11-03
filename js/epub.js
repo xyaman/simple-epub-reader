@@ -1,33 +1,42 @@
-//http://stackoverflow.com/questions/18679576/counting-words-in-string
-
 export class EpubBook {
 
-  constructor() {
-    this.id = -1;
-    this.title = "";
-    this.language = "";
-    this.creator = "";
+  /** @type {number} */
+  id = -1;
 
-    this.lastReadIndex = -1;
-    // We must use this in order to get the current percentage
-    // This should be initialized when it's first open by the reader
-    this.totalIndex = 0;
+  /** @type {string} */
+  title;
 
-    this.file = null;
+  /** @type {string} */
+  language;
 
-    // Array of all book html+xml content already sanitized to 
-    // work with images
-    this.textHTML = [];
+  /** @type {string} */
+  creator;
 
-    this.contentFile = null;
-    this.contentsPath = "";
+  /** @type {number} */
+  lastReadIndex = 0;
 
-    // This files are "temporary", it should be deleted before saving into
-    // the indexedDB.
-    this.cache = {
-      zip: null,
-    };
-  }
+  /** We must use this in order to get the current percentage
+   * This should be initialized when it's first open by the reader
+   * @type {number} 
+   */
+  totalIndex = 0;
+
+  /** @type {File} */
+  file;
+
+  /** Array of all book html+xml content already sanitized to 
+   * work with images
+   * @type {HTMLElement[]} */
+  textHTML = [];
+
+  /** @type {string} */
+  contentFileName;
+
+  /** @type {string} */
+  contentsPath;
+
+  /** Zip File (jszip library) https://github.com/Stuk/jszip */
+  #zip;
 
   static async newFromExistingObject(id, object) {
     const book = new EpubBook();
@@ -69,6 +78,7 @@ export class EpubBook {
 
   async loadFromFile() {
 
+    // TODO: Change 
     // Why we dont use loadEpub()? Because we dont want to save the zip to the
     // as a property. This function is only called when the book is added to the 
     // collection
@@ -83,13 +93,13 @@ export class EpubBook {
     let contentsPath = "";
     if (contentFileName.match(/^.*\//)) {
       contentsPath = contentFileName.match(/^.*\//)[0];
-      this.contentsPath = contentsPath;
     }
+    this.contentsPath = contentsPath;
 
     // Metadata
     // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
     const content = await zip.file(contentFileName).async("text")
-    this.contentFile = contentFileName;
+    this.contentFileName = contentFileName;
     const parser = new DOMParser();
     const parsedContent = parser.parseFromString(content, "application/xml");
 
@@ -99,27 +109,26 @@ export class EpubBook {
   }
 
   /** Loads epub from the inner file. If it's alreay loaded, it just return the
-  * object property 
-  * https://stuk.github.io/jszip/documentation/api_zipobject/async.html
-  * */
+   * object property 
+   * https://stuk.github.io/jszip/documentation/api_zipobject/async.html
+   */
   async loadEpub() {
     if (!this.file) return;
-    this.cache.zip = this.cache.zip ? this.cache.zip : await JSZip.loadAsync(this.file);
-    return this.cache.zip;
+    this.#zip = this.#zip || await JSZip.loadAsync(this.file);
+    return this.#zip;
   }
 
   // TODO: save blobs to remove?
   async getCoverBlob() {
 
     const zipEpub = await this.loadEpub();
-    const content = await zipEpub.file(this.contentFile).async("text")
+    const content = await zipEpub.file(this.contentFileName).async("text")
     const parser = new DOMParser();
     const parsedContent = parser.parseFromString(content, "application/xml");
 
     // We also need to load the cover image
     // TODO: improve this
     // <item href="Images/embed0018_HD.jpg" properties="cover-image" id="embed0018_HD" media-type="image/jpeg" />
-
     const imagesItems = parsedContent.getElementsByTagName("item");
     let backupimage;
     for (let i = 0; i < imagesItems.length; i++) {
