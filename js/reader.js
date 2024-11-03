@@ -28,7 +28,6 @@ class Reader {
    * */
   #paragraphsCharsAcum = [];
 
-
   /** Corresponds to all book pages (when using paginated mode)
    * @type {HTMLElement[]} 
    * */
@@ -45,6 +44,9 @@ class Reader {
 
   /** @type {import("./settings.js").Settings} */
   preferences;
+
+  /** @type {number} */
+  #timer;
 
   /** @param {HTMLElement} readerElem */
   constructor(readerElem, charsCounterElem) {
@@ -126,13 +128,19 @@ class Reader {
       this.#paragraphs[this.current_book.lastReadIndex].scrollIntoView();
     }
 
-    document.removeEventListener("scroll", this.#continousHandleScroll.bind(this));
-    document.addEventListener("scroll", this.#continousHandleScroll.bind(this));
+    document.removeEventListener("scroll", this.#continousHandleTimer.bind(this));
+    document.addEventListener("scroll", this.#continousHandleTimer.bind(this));
   }
 
-  // TODO: Use timeout? Reduce the calls 
-  /** Continous Mode Reader: Handles the scroll */
+  #continousHandleTimer() {
+    if (this.timer !== null) {
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(this.#continousHandleScroll.bind(this), 150);
+  }
+
   #continousHandleScroll() {
+
     let lastReadIndex = 0;
 
     for (let i = 0; i < this.#paragraphs.length; i++) {
