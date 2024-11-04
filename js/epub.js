@@ -62,10 +62,10 @@ export class EpubBook {
     return book;
   }
 
-  /** This functions returns a object ready to be saved into indexedDB 
+  /** This getter returns a object ready to be saved into indexedDB 
    * Note: this object MUST be used when saving in the db.
    * */
-  asObject() {
+  get object() {
     return {
       title: this.title,
       language: this.language,
@@ -73,16 +73,12 @@ export class EpubBook {
       lastReadIndex: this.lastReadIndex || 0,
       totalIndex: this.totalIndex || 0,
       file: this.file,
-    }
+    };
   }
 
   async loadFromFile() {
 
-    // TODO: Change 
-    // Why we dont use loadEpub()? Because we dont want to save the zip to the
-    // as a property. This function is only called when the book is added to the 
-    // collection
-    const zip = await JSZip.loadAsync(this.file)
+    const zip = await this.loadEpub();
 
     // We must first read META-INF/container.xml
     const container = await zip.file("META-INF/container.xml").async("text")

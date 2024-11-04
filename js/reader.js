@@ -133,10 +133,10 @@ class Reader {
   }
 
   #continousHandleTimer() {
-    if (this.timer !== null) {
-      clearTimeout(this.timer);
+    if (this.#timer !== null) {
+      clearTimeout(this.#timer);
     }
-    this.timer = setTimeout(this.#continousHandleScroll.bind(this), 150);
+    this.#timer = setTimeout(this.#continousHandleScroll.bind(this), 150);
   }
 
   #continousHandleScroll() {
@@ -158,8 +158,8 @@ class Reader {
       this.current_book.lastReadIndex = lastReadIndex;
       db.updateBookPosition(this.current_book);
 
-      const progressPercentage = this.#paragraphsCharsAcum[lastReadIndex] / this.#paragraphsCharsAcum.slice(-1)[0] * 100;
-      this.charsCounterElem.innerText = `${this.#paragraphsCharsAcum[lastReadIndex]}/${this.#paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
+      const progressPercentage = this.#paragraphsCharsAcum[lastReadIndex] / this.#paragraphsCharsAcum[this.#paragraphsCharsAcum.length - 1] * 100;
+      this.charsCounterElem.innerText = `${this.#paragraphsCharsAcum[lastReadIndex]}/${this.#paragraphsCharsAcum[this.#paragraphsCharsAcum.length - 1]} (${progressPercentage.toFixed(2)}%)`
     }
   }
 

@@ -29,7 +29,7 @@ async function getBookById(key) {
  */
 async function addBook(book) {
   const db = await openDB(DATABASE_NAME, 1);
-  return await db.add(STORE_NAME, book)
+  return await db.add(STORE_NAME, book.object)
 }
 
 /** Removes a book to the database.
@@ -45,7 +45,7 @@ async function removeBook(key) {
  */
 async function updateBookPosition(book) {
   const db = await openDB(DATABASE_NAME, 1);
-  await db.put(STORE_NAME, book.asObject(), book.id);
+  await db.put(STORE_NAME, book.object, book.id);
 }
 
 export default { getAllBooks, getBookById, addBook, removeBook, updateBookPosition };
