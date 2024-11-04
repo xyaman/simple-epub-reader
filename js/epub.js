@@ -165,72 +165,90 @@ export class EpubBook {
     const blobs = [];
 
     // We load all images
-    // TODO: CHECK if its an image instead of looking the extension
-    for (const image of zip.filter(path => path.includes(".jpg") || path.includes(".jpeg"))) {
+    // TODO: use a querySelector ??
+    // TODO: Support for gaiji??
+    // img.gaiji,
+    // img.gaiji-line,
+    // img.gaiji-wide {
+    //   display:    inline-block;
+    //   margin:     0;
+    //   padding:    0;
+    //   border:     none;
+    //   background: transparent;
+    // }
+
+    for (const image of zip.filter(path => path.includes("image"))) {
       const r = await zip.file(image.name).async("blob")
+      // TODO: This is also treating image/png as image/jpeg
+      // ex.
+      // <item href="image/i-zzzc_04.jpg" id="i-zzzc_04" media-type="image/jpeg" />
+      // <item href="image/i-zzzc_05.jpg" id="i-zzzc_05" media-type="image/jpeg" />
+      // <item href="image/cid-13803.png" id="cid-13803" media-type="image/png" />
+
       let blob = r.slice(0, r.size, "image/jpeg")
-      images[getFileName(image.name)] = URL.createObjectURL(blob);
+      images[getFileNameFromPath(image.name)] = URL.createObjectURL(blob);
       blobs.push(blob);
     }
 
     // We load all content
     // We need to follow the order defined in contents file 
     // Only text for now? TODO: Check it later
-    const textitems = [...parsedContent.getElementsByTagName("item")]
-      .filter(item => item.getAttribute("media-type") === "application/xhtml+xml")
-      .map(item => contentsPath + item.getAttribute("href"));
+    const xhtmlItems = parsedContent.querySelectorAll('item[media-type="application/xhtml+xml"]');
+    for (let i = 0; i < xhtmlItems.length; i++) {
 
-    for (const textfile of textitems) {
+      const xhtmlPath = contentsPath + xhtmlItems[i].getAttribute("href");
 
       // We should ignore navigations file
       // TODO: if the textfile contains the attribute: properties="nav"
       // it should be treated as the navigation
-      if (textfile.includes("navigation")) continue;
+      if (xhtmlPath.includes("navigation")) continue;
 
-      const content = await zip.file(textfile).async("text")
+      const content = await zip.file(xhtmlPath).async("text")
       const parser = new DOMParser();
       const parsedContent = parser.parseFromString(content, "application/xml");
 
       const body = document.createElement("div")
-      body.innerHTML = parsedContent.getElementsByTagName("body")[0].innerHTML;
+      body.innerHTML = parsedContent.querySelector("body").innerHTML;
+      body.setAttribute("id", getFileNameFromPath(xhtmlPath).slice(0, -6));
 
-      // We see if it has image, if it has, we change the link
-      // TODO: If the textitem contains the attribute: properties="svg"
-      // it uses <image> tag.
-      // Right now we are doing unnecessary iterations
-      const bodyimages = body.getElementsByTagName("image");
-      if (bodyimages.length > 0) {
-        let url = getFileName(bodyimages[0].getAttribute("xlink:href"));
-        [...bodyimages].forEach(image => image.setAttribute("xlink:href", images[url]));
+      // Update images(svg) & img hrefs
+      // It seems there is no a standard about how to declare a xhtml that contains
+      // an <img> or <svg> tag. Insted of trying look for the common patterns, I
+      // am just going to check if there are img in every xhtml file
+
+      const imageTags = body.querySelectorAll("image");
+      for (let i = 0; i < imageTags.length; i++) {
+        const key = getFileNameFromPath(imageTags[0].getAttribute("xlink:href"));
+        imageTags[i].setAttribute("xlink:href", images[key]);
       }
 
-      const bodyimages2 = body.getElementsByTagName("img");
-      if (bodyimages2.length > 0) {
-        [...bodyimages2].forEach(image => image.src = images[getFileName(image.src)]);
+      const imgTags = body.querySelectorAll("img");
+      for (let i = 0; i < imgTags.length; i++) {
+        console.log(imgTags[i].src, images);
+        if (!(getFileNameFromPath(imgTags[i].src) in images)) {
+        }
+        imgTags[i].src = images[getFileNameFromPath(imgTags[i].src)];
       }
 
       // We want to modify the links
       // I don't know if it works in all epubs, and probably wont work 
-      // if we uses pages. It's only tested in scrolling (full mode)
+      // TODO: Paginated mode
       const links = body.getElementsByTagName("a");
       if (links) {
         [...links].forEach(link => link.href = "#" + link.href.split("#")[1]);
       }
 
       // we have the file name without the extension
-      const fileWrapper = document.createElement("div");
-      fileWrapper.id = getFileName(textfile).slice(0, -6);
-      fileWrapper.innerHTML = body.innerHTML;
 
-      this.textHTML.push(fileWrapper);
+      this.textHTML.push(body);
     }
 
     console.log(`Epub loaded in ${new Date() - dateBefore}ms`);
   }
 }
 
-
-function getFileName(path) {
+/** @returns {string} */
+function getFileNameFromPath(path) {
   let regex = /[^/]+$/;
   if (path.match(regex)) {
     return path.match(regex)[0];
