@@ -58,6 +58,14 @@ nav.custom-navbar {
   font-size: .75rem;
 }
 
+.page-counter {
+  z-index: 10;
+  left: 50%;
+  bottom: .5rem;
+  position: fixed;
+  font-size: .75rem;
+}
+
 #card-container {
   position: relative;
 }

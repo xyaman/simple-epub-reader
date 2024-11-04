@@ -18,6 +18,9 @@ class Reader {
   /** @type {HTMLElement} */
   charsCounterElem;
 
+  /** @type {HTMLElement} */
+  pageCounterElem;
+
   /** Corresponds to all book paragraphs.
    * @type {HTMLElement[]} 
    * */
@@ -49,10 +52,11 @@ class Reader {
   #timer;
 
   /** @param {HTMLElement} readerElem */
-  constructor(readerElem, charsCounterElem) {
+  constructor(readerElem, charsCounterElem, pageCounterElem) {
 
     this.readerElem = readerElem;
     this.charsCounterElem = charsCounterElem;
+    this.pageCounterElem = pageCounterElem;
     this.bookContentElem = document.createElement("div");
     this.bookContentElem.setAttribute("id", "book-content");
     this.readerElem.append(this.bookContentElem);
@@ -306,8 +310,13 @@ class Reader {
     if (lastParagraph) {
       this.current_book.lastReadIndex = lastValidIndex + 1;
     }
+
+    // Update character counter
     const progressPercentage = this.#paragraphsCharsAcum[lastValidIndex] / this.#paragraphsCharsAcum.slice(-1)[0] * 100;
     this.charsCounterElem.innerText = `${this.#paragraphsCharsAcum[lastValidIndex]}/${this.#paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
+
+    // Update page counter
+    this.pageCounterElem.innerText = `Page ${this.#currentPageIndex}/${this.current_book.totalIndex}`;
 
     db.updateBookPosition(this.current_book);
   }
@@ -329,7 +338,7 @@ function countUnicodeCharacters(s) {
 
 // MAIN
 async function main() {
-  const reader = new Reader(document.getElementById("reader"), document.getElementById("character-counter"));
+  const reader = new Reader(document.getElementById("reader"), document.getElementById("character-counter"), document.getElementById("page-counter"));
 
   // TODO: Handle invalid (or null) id
   const urlParams = new URLSearchParams(window.location.search);
