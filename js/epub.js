@@ -77,8 +77,7 @@ export class EpubBook {
   }
 
   async loadFromFile() {
-
-    const zip = await this.loadEpub();
+    const zip = await this.getZip();
 
     // We must first read META-INF/container.xml
     const container = await zip.file("META-INF/container.xml").async("text")
@@ -108,48 +107,38 @@ export class EpubBook {
    * object property 
    * https://stuk.github.io/jszip/documentation/api_zipobject/async.html
    */
-  async loadEpub() {
+  async getZip() {
     if (!this.file) return;
     this.#zip = this.#zip || await JSZip.loadAsync(this.file);
     return this.#zip;
   }
 
-  // TODO: save blobs to remove?
+  /** @returns {string} returns cover image url */
   async getCoverBlob() {
 
-    const zipEpub = await this.loadEpub();
+    const zipEpub = await this.getZip();
     const content = await zipEpub.file(this.contentFileName).async("text")
     const parser = new DOMParser();
     const parsedContent = parser.parseFromString(content, "application/xml");
 
-    // We also need to load the cover image
-    // TODO: improve this
-    // <item href="Images/embed0018_HD.jpg" properties="cover-image" id="embed0018_HD" media-type="image/jpeg" />
-    const imagesItems = parsedContent.getElementsByTagName("item");
-    let backupimage;
-    for (let i = 0; i < imagesItems.length; i++) {
-      if (imagesItems[i].getAttribute("media-type") == "image/jpeg")
-        backupimage = backupimage || this.contentsPath + imagesItems[i].getAttribute("href");
-
-      if (imagesItems[i].getAttribute("properties") == "cover-image") {
-        const coverImagePath = this.contentsPath + imagesItems[i].getAttribute("href");
-        const r = await zipEpub.file(coverImagePath).async("blob")
-        let blob = r.slice(0, r.size, "image/jpeg")
-        return URL.createObjectURL(blob);
-      }
+    // Usually the epub cover has properties="cover-image"
+    const coverImage = parsedContent.querySelector('item[properties="cover-image"]') || parsedContent.querySelector('item[media-type="image/jpeg"]');
+    if (coverImage) {
+      const coverImagePath = this.contentsPath + coverImage.getAttribute("href");
+      const r = await zipEpub.file(coverImagePath).async("blob")
+      let blob = r.slice(0, r.size, "image/jpeg")
+      return URL.createObjectURL(blob);
     }
 
-    // Return last found image
-    const r = await zipEpub.file(backupimage).async("blob")
-    let blob = r.slice(0, r.size, "image/jpeg")
-    return URL.createObjectURL(blob);
+    // TODO: Have a fallback static img
   }
 
+  // TODO: save blobs to remove?
   async loadContent() {
     if (!this.file) return;
 
     const dateBefore = new Date();
-    const zip = await this.loadEpub();
+    const zip = await this.getZip();
 
     // We must first read META-INF/container.xml
     const container = await zip.file("META-INF/container.xml").async("text")
