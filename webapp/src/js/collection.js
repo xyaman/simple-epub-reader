@@ -64,7 +64,7 @@ class Collection {
       const card = document.createElement("a");
       cardContainer.appendChild(card);
       card.classList.add("card");
-      card.href = "/simple-epub-reader/reader.html?id=" + this.books[i].id
+      card.href = "./reader.html?id=" + this.books[i].id
 
       const cardImage = document.createElement("div");
       card.appendChild(cardImage);
