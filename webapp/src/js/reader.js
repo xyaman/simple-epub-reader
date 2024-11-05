@@ -128,7 +128,7 @@ class Reader {
 
   #setupContinous() {
     // We scroll into lastReadIndex
-    if (this.current_book.lastReadIndex) {
+    if (this.current_book.lastReadIndex > 0) {
       this.#paragraphs[this.current_book.lastReadIndex].scrollIntoView();
     }
 

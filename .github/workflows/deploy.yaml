@@ -1,0 +1,29 @@
+name: Project Build and Deploy
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Build app to prod
+        working-directory: webapp
+        run: npm install && npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: webapp/dist/
+          branch: gh-pages
+          token: ${{ secrets.GH_TOKEN }}

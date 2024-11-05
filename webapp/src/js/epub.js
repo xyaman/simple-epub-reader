@@ -45,8 +45,8 @@ export class EpubBook {
     book.title = object.title;
     book.language = object.language;
     book.creator = object.creator;
-    book.lastReadIndex = object.lastReadIndex | 0;
-    book.totalIndex = object.totalIndex | 0;
+    book.lastReadIndex = object.lastReadIndex || 0;
+    book.totalIndex = object.totalIndex || 0;
     book.file = object.file;
 
     await book.loadFromFile();
@@ -177,7 +177,8 @@ export class EpubBook {
     //   background: transparent;
     // }
 
-    for (const image of zip.filter(path => path.includes("image"))) {
+    // TODO: we need to include png files
+    for (const image of zip.filter(path => path.includes(".jpg") || path.includes(".jpeg"))) {
       const r = await zip.file(image.name).async("blob")
       // TODO: This is also treating image/png as image/jpeg
       // ex.
@@ -224,7 +225,6 @@ export class EpubBook {
 
       const imgTags = body.querySelectorAll("img");
       for (let i = 0; i < imgTags.length; i++) {
-        console.log(imgTags[i].src, images);
         if (!(getFileNameFromPath(imgTags[i].src) in images)) {
         }
         imgTags[i].src = images[getFileNameFromPath(imgTags[i].src)];

@@ -1,0 +1,19 @@
+{
+  "name": "epub-reader",
+  "version": "0.0.1",
+  "description": "Simple epub reader",
+  "scripts": {
+    "build": "rollup --config"
+  },
+  "keywords": [],
+  "author": "xyaman",
+  "license": "ISC",
+  "devDependencies": {
+    "@rollup/plugin-html": "^1.0.4",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@web/rollup-plugin-html": "^2.3.0",
+    "rollup": "^4.24.4",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-delete": "^2.1.0"
+  }
+}
