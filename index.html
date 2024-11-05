@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Collection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <nav class="custom-navbar" role="navigation">
+    <div class="navbar-content">
+      <p class="has-text-light">Library</p>
+      <div class="right-content">
+        <a href="/simple-epub-reader/settings.html" class="has-text-light">
+          <span class="icon">
+            <i class="fas fa-gear"></i>
+          </span>
+        </a>
+
+        <div>
+          <label for="file-input" class="icon has-text-light">
+            <i class="fas fa-upload"></i>
+          </label>
+          <input id="file-input" style="display:none;" type="file" accept=".epub" />
+        </div>
+      </div>
+    </div>
+  </nav>
+  <main>
+    <div class="section">
+      <div class="container">
+        <div id="books-container"></div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="js/libs/jszip.min.js"></script>
+  <script type="module" src="js/collection.js"></script>
+</body>
+
+</html>

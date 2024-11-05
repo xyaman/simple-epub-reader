@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Collection</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <nav class="custom-navbar" role="navigation">
+    <div class="navbar-content">
+      <p class="has-text-light">Settings</p>
+
+      <div class="right-content">
+        <a id="go-back" class="has-text-light">
+          <span class="icon">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="section">
+      <div class="container">
+        <label class="label">Font Size</label>
+        <div class="field has-addons">
+          <p class="control">
+            <input id="fontSize" class="input" type="number" placeholder="25" />
+          </p>
+          <div class="control">
+            <a class="button is-static">px</a>
+          </div>
+        </div>
+
+        <label class="label">Paginated Mode</label>
+        <label class="checkbox">
+          <input type="checkbox" id="paginatedMode" />
+          Use paginated mode?
+        </label>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import settings from "./js/settings.js"
+
+
+    let currentSettings = settings.load();
+    console.log(currentSettings);
+
+    const fontItem = document.getElementById("fontSize");
+    const isPaginatedItem = document.getElementById("paginatedMode");
+
+    // set default values
+    fontItem.value = currentSettings.fontSize;
+    isPaginatedItem.checked = currentSettings.readerIsPaginated;
+
+    fontItem.addEventListener("change", e => {
+      try {
+        const size = parseInt(e.target.value);
+        currentSettings = {...currentSettings, fontSize: size}
+        settings.update(currentSettings);
+      } catch {
+        return
+      }
+    });
+
+    isPaginatedItem.addEventListener("change", e => {
+      currentSettings = {...currentSettings, readerIsPaginated: e.target.checked}
+      settings.update(currentSettings);
+    });
+
+
+    // Other listeners
+    document.getElementById("go-back").addEventListener("click", () => {
+      if (document.referrer) {
+        window.location.replace(document.referrer);
+        return;
+      }
+
+      window.location.href = "/simple-epub-reader/index.html";
+
+    });
+  </script>
+
+</body>
+
+</html>

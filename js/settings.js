@@ -1,0 +1,1 @@
+const t="settings",e={readerIsPaginated:!0,fontSize:25};const n={load:function(){const n=window.localStorage.getItem(t);if(!n)return e;const o=JSON.parse(n);return{...e,...o}},update:function(e){window.localStorage.setItem(t,JSON.stringify(e))}};export{n as default};
