@@ -1,4 +1,4 @@
-name: Project Build and Deploy
+name: Project Build and Deploy (gh-pages)
 
 on:
   push:
@@ -13,9 +13,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22.9
 
       - name: Build app to prod
         working-directory: webapp
