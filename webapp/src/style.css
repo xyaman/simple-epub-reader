@@ -64,6 +64,7 @@ nav.custom-navbar {
   bottom: .5rem;
   position: fixed;
   font-size: .75rem;
+  transform: translate(-50%, 0);
 }
 
 #card-container {
