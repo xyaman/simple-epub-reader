@@ -7,10 +7,10 @@ export class EpubBook {
   title;
 
   /** @type {string} */
-  language;
+  creator;
 
   /** @type {string} */
-  creator;
+  language;
 
   /** @type {number} */
   lastReadIndex = 0;
