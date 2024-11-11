@@ -22,6 +22,7 @@ export default [
       copy({
         targets: [
           { src: 'src/*.{html,css,js}', dest: 'dist/' },
+          { src: 'src/icons/*', dest: 'dist/icons' },
           { src: 'src/js/libs/*.js', dest: 'dist/js/libs/' },
           { src: 'src/manifest.json', dest: 'dist/' }
         ]
