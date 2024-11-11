@@ -104,7 +104,7 @@
     });
 
     serverAddressItem.addEventListener("change", e => {
-      const address = parseInt(e.target.value);
+      const address = e.target.value;
       currentSettings = {...currentSettings, serverAddress: address}
       settings.update(currentSettings);
     });
