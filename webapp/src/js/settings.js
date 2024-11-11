@@ -14,8 +14,8 @@ const DEFAULT_SETTINGS = {
   lightTheme: false,
   readerIsPaginated: true,
   fontSize: 25,
-  uuid: "a310ed28-1734-4089-8e10-58bad8457b71",
-  serverAddress: "http://localhost:3000"
+  uuid: "",
+  serverAddress: ""
 };
 
 /**
