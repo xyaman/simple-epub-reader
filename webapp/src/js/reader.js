@@ -71,6 +71,17 @@ class Reader {
   updateReaderStyle() {
     this.readerElem.style.fontSize = `${this.preferences.fontSize}px`;
     this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
+
+    if (this.preferences.lightTheme) {
+      this.readerElem.style.color = "black";
+      this.readerElem.style.background = "white";
+
+      this.pageCounterElem.style.color = "black";
+      this.charsCounterElem.style.color = "black";
+
+      document.body.style.color = "black";
+      document.body.style.background = "white";
+    }
   }
 
   /** Sets a new book and prepares the prepares the reader to show the book.

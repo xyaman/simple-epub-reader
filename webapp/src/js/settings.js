@@ -2,6 +2,7 @@ const SETTINGS_KEY = "settings";
 
 /**
  * @typedef Settings
+ * @prop {boolean} lightTheme
  * @prop {boolean} readerIsPaginated true: continous / false: paginated
  * @prop {number} fontSize
  * @prop {string} uuid
@@ -10,6 +11,7 @@ const SETTINGS_KEY = "settings";
 
 /** @type {Settings} */
 const DEFAULT_SETTINGS = {
+  lightTheme: false,
   readerIsPaginated: true,
   fontSize: 25,
   uuid: "a310ed28-1734-4089-8e10-58bad8457b71",
