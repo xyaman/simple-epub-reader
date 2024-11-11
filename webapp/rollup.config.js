@@ -21,8 +21,9 @@ export default [
       terser(), // minify
       copy({
         targets: [
-          { src: 'src/*.{html,css}', dest: 'dist/' },
-          { src: 'src/js/libs/*.js', dest: 'dist/js/libs/' }
+          { src: 'src/*.{html,css,js}', dest: 'dist/' },
+          { src: 'src/js/libs/*.js', dest: 'dist/js/libs/' },
+          { src: 'src/manifest.json', dest: 'dist/' }
         ]
       }),
       del({ targets: "dist/*", runOnce: true }), // Delete items once. Useful in watch mode.
