@@ -305,9 +305,6 @@ class Reader {
     if (lastParagraph) {
       const lastIndex = lastParagraph.getAttribute("data-index") || null;
       lastValidIndex = lastIndex ? Math.max(parseInt(lastIndex) - 1, 0) : this.current_book.lastReadIndex;
-    }
-
-    if (lastParagraph) {
       this.current_book.lastReadIndex = lastValidIndex + 1;
     }
 

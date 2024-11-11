@@ -38,6 +38,23 @@
           </div>
         </div>
 
+        <label class="label">Server address</label>
+        <div class="field">
+          <p class="control">
+            <input id="server-address" class="input" type="text" placeholder="http://localhost:3000" />
+          </p>
+        </div>
+
+        <label class="label">Server ID</label>
+        <div class="field has-addons">
+          <p class="control">
+            <input id="server-uuid" class="input" type="text" placeholder="xxxx-xxxx-xxx-xxxx" />
+          </p>
+          <div class="control">
+            <button id="generate-uuid" class="button">Generate</button>
+          </div>
+        </div>
+
         <label class="label">Paginated Mode</label>
         <label class="checkbox">
           <input type="checkbox" id="paginatedMode" />
@@ -55,10 +72,16 @@
     console.log(currentSettings);
 
     const fontItem = document.getElementById("fontSize");
+    const serverAddressItem = document.getElementById("server-address");
+    const serverUUID = document.getElementById("server-uuid");
+    const generateUUID = document.getElementById("generate-uuid");
     const isPaginatedItem = document.getElementById("paginatedMode");
 
     // set default values
     fontItem.value = currentSettings.fontSize;
+    serverAddressItem.value = currentSettings.serverAddress;
+    serverUUID.value = currentSettings.uuid;
+    serverUUID.value = currentSettings.uuid;
     isPaginatedItem.checked = currentSettings.readerIsPaginated;
 
     fontItem.addEventListener("change", e => {
@@ -68,6 +91,25 @@
         settings.update(currentSettings);
       } catch {
         return
+      }
+    });
+
+    serverAddressItem.addEventListener("change", e => {
+      const address = parseInt(e.target.value);
+      currentSettings = {...currentSettings, serverAddress: address}
+      settings.update(currentSettings);
+    });
+
+    generateUUID.addEventListener("click", async e => {
+
+      const res = await fetch(`${currentSettings.serverAddress}/user/generate`);
+      const resJSON = await res.json();
+
+      if (resJSON.success) {
+        currentSettings = {...currentSettings, uuid: resJSON.data}
+        settings.update(currentSettings);
+
+        serverUUID.value = resJSON.data;
       }
     });
 

@@ -3,6 +3,9 @@ export class EpubBook {
   /** @type {number} */
   id = -1;
 
+  /** @type {number} */
+  updatedAt = 0
+
   /** @type {string} */
   title;
 
@@ -42,6 +45,7 @@ export class EpubBook {
     const book = new EpubBook();
 
     book.id = id;
+    book.updatedAt = object.updatedAt || 0;
     book.title = object.title;
     book.language = object.language;
     book.creator = object.creator;
@@ -68,6 +72,7 @@ export class EpubBook {
   get object() {
     return {
       title: this.title,
+      updatedAt: this.updatedAt,
       language: this.language,
       creator: this.creator,
       lastReadIndex: this.lastReadIndex || 0,

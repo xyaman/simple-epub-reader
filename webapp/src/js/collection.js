@@ -120,3 +120,7 @@ document.getElementById("file-input").addEventListener('change', async function(
     collection.addBookFromFile(e.target.files[0]);
   }
 });
+
+document.getElementById("sync").addEventListener('click', async function(e) {
+  await db.syncWithServer()
+});
