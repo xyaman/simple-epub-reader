@@ -22,6 +22,7 @@ func Setup(database *sql.DB) {
 
 func CreateTables() error {
 	// User Table
+	// TODO: consider remove this
 	createUsersTableSQL := `
 	CREATE TABLE IF NOT EXISTS users (
 				uuid TEXT PRIMARY KEY,
@@ -63,6 +64,7 @@ func GenerateUUID(c *gin.Context) {
 	uuid := uuid.New().String()
 	now := time.Now().Unix()
 
+	// TODO: change to squirrel
 	_, err := db.Exec("INSERT INTO users (uuid, last_update) VALUES (?, ?)", uuid, now)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Error creating resource.", "error": err.Error()})
@@ -93,7 +95,6 @@ func UpdateBooks(c *gin.Context) {
 	if err := c.BindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
-			"message": "Invalid Request Body",
 			"error":   err.Error(),
 		})
 		return
@@ -118,7 +119,10 @@ func UpdateBooks(c *gin.Context) {
 
 	rows, err := db.Query(sqlStr, args...)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "error fetching updates"})
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   "error fetching updates",
+		})
 		return
 	}
 	defer rows.Close()
@@ -144,9 +148,8 @@ func UpdateBooks(c *gin.Context) {
 	}
 
 	// We update the book in the server
+	booksUpdates := make([]string, 0)
 	for _, clientBook := range reqBody.Data {
-		fmt.Println(clientBook)
-
 		// We get the book from the db and compare. Should we update?
 		sqlQuery, args, err := sq.Select("updated_at").
 			From("books").
@@ -193,6 +196,9 @@ func UpdateBooks(c *gin.Context) {
 			}
 
 			fmt.Printf("Book %s will be created in the db\n", clientBook.Title)
+
+			booksUpdates = append(booksUpdates, clientBook.Title)
+
 			continue
 		}
 
@@ -227,13 +233,13 @@ func UpdateBooks(c *gin.Context) {
 			}
 
 			fmt.Printf("Success. Affected row: %d\n", rowsAffected)
+			booksUpdates = append(booksUpdates, clientBook.Title)
 		}
 	}
 
-	fmt.Println("here")
-
 	c.JSON(http.StatusOK, gin.H{
-		"success":       true,
-		"updated_books": books,
+		"success":        true,
+		"updated_books":  books,
+		"server_updates": booksUpdates,
 	})
 }

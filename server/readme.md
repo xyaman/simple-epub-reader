@@ -19,7 +19,7 @@ Request Body:
 ```js
 {
     "user_uuid": string,
-    "data": []book
+    "data": []book,
 }
 ```
 
@@ -29,6 +29,9 @@ Response Body:
 // The client books that had been updated in the db
 // Note: the books updated in the db are not sent
 {
-    "updated_books": []book
+    "success": bool,
+    "error": string, // only present if success == false
+    "updated_books": []book, // books that should be updated by the client
+	"server_updates": []string, // books' titles updates (server side)
 }
 ```
