@@ -90,6 +90,8 @@ async function syncWithServer() {
   const resJSON = await res.json();
   const serverBooks = resJSON.updated_books;
 
+  result.uploaded = resJSON.server_updates;
+
   for (const serverBook of serverBooks) {
     if (serverBook.title in booksMap) {
       const clientBook = booksMap[serverBook.title]

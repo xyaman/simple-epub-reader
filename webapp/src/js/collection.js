@@ -128,7 +128,7 @@ class Collection {
 
     const p = document.createElement("p");
     contentDiv.appendChild(p);
-    p.innerHTML = `<p>${content}</p>`;
+    p.innerHTML = content;
 
     const closeButton = document.createElement("button");
     closeButton.classList.add("modal-close", "is-large");
@@ -143,16 +143,20 @@ class Collection {
 
   async syncWithServer() {
     this.showModal(`Starting sync`)
-    const res = await db.syncWithServer()
-    if (res.downloaded.length + res.uploaded.length > 0) {
-      this.showModal(`Succesfully synced: <br> down: ${res.downloaded.length}`)
 
-      // reaload books and render
-      await this.loadBooks();
-      await this.render();
-      console.log("succesfully synced...", "down: ", res.downloaded.length)
-    } else {
-      this.showModal("Succesfully synced")
+    try {
+      const res = await db.syncWithServer()
+      if (res.downloaded.length + res.uploaded.length > 0) {
+        this.showModal(`<strong>Succesfully synced</strong><br> ↑ ${res.uploaded.length} book(s) uploaded<br> ↓ ${res.downloaded.length} book(s) downloaded`)
+
+        // reaload books and render
+        await this.loadBooks();
+        await this.render();
+      } else {
+        this.showModal("<strong>Succesfully synced</strong><br> No changes");
+      }
+    } catch (e) {
+      this.showModal(`An error has ocurred: ${e}`);
     }
   }
 }
