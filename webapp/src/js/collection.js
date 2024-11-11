@@ -18,21 +18,23 @@ class Collection {
     /** @type {HTMLElement} */
     this.modalElem = modalElem;
 
-    (async () => {
+    this.loadBooks().then(() => console.log("collection loaded"));
+  }
 
-      // Loads books from database 
-      const books = await db.getAllBooks();
-      console.log(books);
+  async loadBooks() {
+    // Loads books from database 
+    this.books = []
+    const books = await db.getAllBooks();
+    console.log(books);
 
+    for (const book of books) {
+      const classBook = await EpubBook.newFromExistingObject(book.key, book.value);
+      this.books.push(classBook);
+    }
+    console.log("All books have been loaded");
 
-      for (const book of books) {
-        const classBook = await EpubBook.newFromExistingObject(book.key, book.value);
-        this.books.push(classBook);
-      }
-      console.log("All books have been loaded");
-
-      await this.render();
-    })().then(() => console.log("collection loaded"));
+    await this.render();
+    console.log("collection loaded");
 
   }
 
@@ -144,6 +146,9 @@ class Collection {
     const res = await db.syncWithServer()
     if (res.downloaded.length + res.uploaded.length > 0) {
       this.showModal(`Succesfully synced: <br> down: ${res.downloaded.length}`)
+
+      // reaload books and render
+      await this.loadBooks();
       await this.render();
       console.log("succesfully synced...", "down: ", res.downloaded.length)
     } else {
