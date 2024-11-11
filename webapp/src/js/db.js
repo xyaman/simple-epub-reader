@@ -55,6 +55,11 @@ async function syncWithServer() {
   // TODO: remove this (improve)
   // we need to map every book to the user_uuid
 
+  const result = {
+    "uploaded": [],
+    "downloaded": [],
+  };
+
   const uuid = settings.load().uuid;
   const serverAddress = settings.load().serverAddress;
   const db = await openDB(DATABASE_NAME, 1);
@@ -97,10 +102,12 @@ async function syncWithServer() {
         dbBook.id = clientBook.id
 
         await db.put(STORE_NAME, dbBook, dbBook.id);
-        console.log(`${dbBook.title} has been updated`);
+        result.downloaded.push(dbBook.title);
       }
     }
   }
+
+  return result;
 }
 
 export default { getAllBooks, getBookById, addBook, removeBook, updateBookPosition, syncWithServer };

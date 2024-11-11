@@ -3,15 +3,20 @@ import db from "./db.js"
 
 /** Represents the collection of books 
  * @param {HTMLElement} elem 
+ * @param {HTMLElement} modalElem 
  * */
+
 class Collection {
-  constructor(elem) {
+  constructor(elem, modalElem) {
 
     /** @type {EpubBook[]} */
     this.books = []
 
     /** @type {HTMLElement} */
     this.elem = elem;
+
+    /** @type {HTMLElement} */
+    this.modalElem = modalElem;
 
     (async () => {
 
@@ -99,10 +104,52 @@ class Collection {
 
       columns.appendChild(column);
     }
-
     this.elem.appendChild(columns);
   }
 
+  showModal(content) {
+    this.modalElem.innerHTML = '';
+    this.modalElem.classList.add("modal", "is-active", "is-clipped");
+
+    const overlay = document.createElement("div");
+    overlay.classList.add("modal-background");
+    this.modalElem.appendChild(overlay);
+    overlay.onclick = this.hideModal.bind(this);
+
+    const modalContent = document.createElement("div");
+    modalContent.classList.add("modal-content");
+    this.modalElem.appendChild(modalContent);
+
+    const contentDiv = document.createElement("div");
+    contentDiv.classList.add("content", "box");
+    modalContent.appendChild(contentDiv);
+
+    const p = document.createElement("p");
+    contentDiv.appendChild(p);
+    p.innerHTML = `<p>${content}</p>`;
+
+    const closeButton = document.createElement("button");
+    closeButton.classList.add("modal-close", "is-large");
+    this.modalElem.appendChild(closeButton);
+    closeButton.onclick = this.hideModal.bind(this);
+  }
+
+  hideModal() {
+    this.modalElem.innerHTML = '';
+    this.modalElem.setAttribute("class", "");
+  }
+
+  async syncWithServer() {
+    this.showModal(`Starting sync`)
+    const res = await db.syncWithServer()
+    if (res.downloaded.length + res.uploaded.length > 0) {
+      this.showModal(`Succesfully synced: <br> down: ${res.downloaded.length}`)
+      await this.render();
+      console.log("succesfully synced...", "down: ", res.downloaded.length)
+    } else {
+      this.showModal("Succesfully synced")
+    }
+  }
 }
 
 
@@ -110,7 +157,7 @@ class Collection {
 let collection;
 
 document.addEventListener("DOMContentLoaded", () => {
-  collection = new Collection(document.getElementById("books-container"));
+  collection = new Collection(document.getElementById("books-container"), document.getElementById("modal"));
 });
 
 // Process the epub file
@@ -122,5 +169,5 @@ document.getElementById("file-input").addEventListener('change', async function(
 });
 
 document.getElementById("sync").addEventListener('click', async function(e) {
-  await db.syncWithServer()
+  await collection.syncWithServer();
 });
