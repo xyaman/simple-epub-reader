@@ -2,11 +2,12 @@
 
 ## Features
 - Lightweight.
-- Read epub books.
-- Paginated y continous (scroll) mode.
-- Save books (library)
+- Paginated and continous (scroll) mode.
+- Simple library/collection page
 - Reader preferences (font size, ...).
 - Reader saves the book progress.
+- PWA (Works offline)
+- Book progress synchronization (just progress, no book content)
 
 ## Limitations
 
@@ -25,10 +26,8 @@ Or try the github page (production branch): https://xyaman.github.io/simple-epub
 - Better UI (See book progress in collection page)
 - Epub navigation support
 - More user settings (themes, line height, better ui).
-- Fully responsive
-- PWA
 - Vertical text (japanese)
-- Synchronization (server?)
+- Synchronization (files?)
 
 
 ## Libraries
