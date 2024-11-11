@@ -58,6 +58,8 @@ func CreateTables() error {
 
 // GET /user/generate
 func GenerateUUID(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+
 	uuid := uuid.New().String()
 	now := time.Now().Unix()
 
@@ -84,8 +86,10 @@ type SyncRequest struct {
 // This function should be called to update books in the backend.
 // The backend will check the books timestamps before updating
 func UpdateBooks(c *gin.Context) {
-	var reqBody SyncRequest
 
+	c.Header("Access-Control-Allow-Origin", "*")
+
+	var reqBody SyncRequest
 	if err := c.BindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
@@ -132,15 +136,16 @@ func UpdateBooks(c *gin.Context) {
 			// 1. the book does not exists in the request (is updated or is it null in the client)
 			// 2. the book was sent by the client (to be updated), but it was an older version
 			timestampClientBook, exists := reqBooksMap[dbBook.Title]
-			fmt.Println(timestampClientBook, exists, dbBook.UpdatedAt)
 			if (exists && timestampClientBook < dbBook.UpdatedAt) || !exists {
 				books = append(books, dbBook)
+				fmt.Println("book will be returned", timestampClientBook, dbBook.Title)
 			}
 		}
 	}
 
 	// We update the book in the server
 	for _, clientBook := range reqBody.Data {
+		fmt.Println(clientBook)
 
 		// We get the book from the db and compare. Should we update?
 		sqlQuery, args, err := sq.Select("updated_at").
@@ -157,7 +162,7 @@ func UpdateBooks(c *gin.Context) {
 			return
 		}
 
-		var updatedAt int = 0
+		var updatedAt int = -1
 		err = db.QueryRow(sqlQuery, args...).Scan(&updatedAt)
 		if err != nil {
 			if err == sql.ErrNoRows {
@@ -170,7 +175,7 @@ func UpdateBooks(c *gin.Context) {
 
 		// If no book was found, we insert the book
 		// Otherwise, we update
-		if updatedAt == 0 {
+		if updatedAt == -1 {
 			insertSQL := sq.Insert("books").
 				Columns("user_uuid", "updated_at", "title", "creator", "language", "last_read_index", "total_index").
 				Values(reqBody.UserUUID, clientBook.UpdatedAt, clientBook.Title, clientBook.Creator, clientBook.Language, clientBook.LastReadIndex, clientBook.TotalIndex)
@@ -225,7 +230,10 @@ func UpdateBooks(c *gin.Context) {
 		}
 	}
 
+	fmt.Println("here")
+
 	c.JSON(http.StatusOK, gin.H{
+		"success":       true,
 		"updated_books": books,
 	})
 }
