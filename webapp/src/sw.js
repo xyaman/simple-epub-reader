@@ -39,11 +39,24 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Interceptar solicitudes de red y servir desde el caché si está disponible
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
-  );
+  const requestURL = new URL(event.request.url);
+
+  // reader.html always has a param id
+  // ..../reader.html?id=1
+  // ..../reader.html?id=3
+
+  if (requestURL.pathname === '/reader.html') {
+    event.respondWith(
+      caches.match('/reader.html').then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  }
 });
