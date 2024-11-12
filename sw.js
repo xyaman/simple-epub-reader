@@ -1,10 +1,11 @@
 const CACHE_NAME = "epub-reader";
 
 // A change of one character should trigger the update 
-const version = "0.0.1-v1"
+const version = "0.0.1-v2"
 
 const urlsToCache = [
   "/",
+  "/sw.js",
   "/style.css",
   "/index.html",
   "/reader.html",
