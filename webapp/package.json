@@ -9,11 +9,16 @@
   "author": "xyaman",
   "license": "ISC",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.1",
     "@rollup/plugin-html": "^1.0.4",
+    "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@web/rollup-plugin-html": "^2.3.0",
     "rollup": "^4.24.4",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-delete": "^2.1.0"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
   }
 }

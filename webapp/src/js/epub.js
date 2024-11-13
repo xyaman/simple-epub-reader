@@ -1,3 +1,5 @@
+import JSZip from "./libs/jszip.min.js";
+
 export class EpubBook {
 
   /** @type {number} */
