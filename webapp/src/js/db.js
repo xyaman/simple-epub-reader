@@ -47,7 +47,7 @@ async function removeBook(key) {
  */
 async function updateBookPosition(book) {
   const db = await openDB(DATABASE_NAME, 1);
-  book.updatedAt = Date.now();
+  book.updatedAt = Date.now(); // to update in the server db 
   await db.put(STORE_NAME, book.object, book.id);
 }
 
@@ -68,7 +68,6 @@ async function syncWithServer() {
   let clientBooks = await getAllBooks()
   clientBooks = clientBooks.map(b => ({
     "id": b.key,
-    "user_id": uuid,
     "creator": b.value.creator,
     "language": b.value.language,
     "last_read_index": b.value.lastReadIndex,
