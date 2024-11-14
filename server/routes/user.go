@@ -107,7 +107,7 @@ func UpdateBooks(c *gin.Context) {
 	}
 
 	// Get user last timestamp sync
-	timestampSQL := sq.Select("id, user_uuid, updated_at, title, creator, language, last_read_index, total_index").
+	timestampSQL := sq.Select("updated_at, title, creator, language, last_read_index, total_index").
 		From("books").
 		Where(sq.Eq{"user_uuid": reqBody.UserUUID})
 
@@ -133,7 +133,7 @@ func UpdateBooks(c *gin.Context) {
 	// that are not in the array client send
 	for rows.Next() {
 		var dbBook models.EpubBook
-		if err := rows.Scan(&dbBook.Id, &dbBook.UserUUID, &dbBook.UpdatedAt, &dbBook.Title, &dbBook.Creator, &dbBook.Language, &dbBook.LastReadIndex, &dbBook.TotalIndex); err == nil {
+		if err := rows.Scan(&dbBook.UpdatedAt, &dbBook.Title, &dbBook.Creator, &dbBook.Language, &dbBook.LastReadIndex, &dbBook.TotalIndex); err == nil {
 			// only append if book.updateAt is bigger than the body the user sent
 
 			// We only send the book to the client if:
