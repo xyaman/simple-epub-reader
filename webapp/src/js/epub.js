@@ -1,4 +1,15 @@
+// @ts-ignore
 import JSZip from "./libs/jszip.min.js";
+
+/**
+ * @typedef PartialBook
+ * @prop {string} title
+ * @prop {string} updatedAt
+ * @prop {string} language
+ * @prop {number} lastReadIndex
+ * @prop {number} totalIndex
+ * @prop {File} file
+ */
 
 export class EpubBook {
 
@@ -70,6 +81,7 @@ export class EpubBook {
 
   /** This getter returns a object ready to be saved into indexedDB 
    * Note: this object MUST be used when saving in the db.
+   * @returns {PartialBook}
    * */
   get object() {
     return {

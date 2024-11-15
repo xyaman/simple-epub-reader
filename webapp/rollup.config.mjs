@@ -3,8 +3,9 @@ import terser from '@rollup/plugin-terser';
 import del from 'rollup-plugin-delete'
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 
-const files = ["collection.js", "reader.js", "settings.js"];
+const files = ["collection.js", "reader.js", "settings.ts"];
 const inPath = "src/js"
 
 export default [
@@ -19,6 +20,7 @@ export default [
     plugins: [
       resolve(),
       commonjs(),
+      typescript({ tsconfig: "./tsconfig.json" }),
       terser(), // minify
       copy({
         targets: [

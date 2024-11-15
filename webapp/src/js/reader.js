@@ -1,5 +1,5 @@
-import db from "./db.js"
-import settings from "./settings.js"
+import * as db from "./db.js"
+import * as settings from "./settings.js"
 import { EpubBook } from "./epub.js";
 
 /** @import { EpubBook } from "./epub.js" */
@@ -45,7 +45,7 @@ class Reader {
   /** @type {number} */
   #swipeEndX = 0
 
-  /** @type {import("./settings.js").Settings} */
+  /** @type {import("./settings_old.js").Settings} */
   preferences;
 
   /** @type {number} */
