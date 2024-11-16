@@ -1,48 +1,37 @@
+// @ts-ignore
 import { EpubBook } from "./epub.js"
+
 import * as db from "./db.js"
 
-/** Represents the collection of books 
- * @param {HTMLElement} elem 
- * @param {HTMLElement} modalElem 
- * */
-
 class Collection {
-  constructor(elem, modalElem) {
+  elem: HTMLElement;
+  modalElem: HTMLElement;
 
-    /** @type {EpubBook[]} */
-    this.books = []
+  books: EpubBook[] = [];
 
-    /** @type {HTMLElement} */
+  constructor(elem: HTMLElement, modalElem: HTMLElement) {
     this.elem = elem;
-
-    /** @type {HTMLElement} */
     this.modalElem = modalElem;
-
-    this.loadBooks().then(() => console.log("collection loaded"));
+    this.loadBooks().then(() => console.log("[Collection] All books have been loaded"));
   }
 
-  async loadBooks() {
-    // Loads books from database 
-    this.books = []
+  // Loads books from database 
+  private async loadBooks() {
     const books = await db.getAllBooks();
-    console.log(books);
 
     for (const book of books) {
       const classBook = await EpubBook.newFromExistingObject(book.key, book.value);
       this.books.push(classBook);
     }
-    console.log("All books have been loaded");
-
     await this.render();
-    console.log("collection loaded");
-
+    console.log(books);
   }
 
   /** Loads a book from a file */
-  async addBookFromFile(file) {
+  async addBookFromFile(file: File) {
     const book = await EpubBook.newFromFile(file);
     const key = await db.addBook(book);
-    book.id = key;
+    book.id = key as number;
 
     // Book (Cover) element
     console.log("book added succesfully");
@@ -93,8 +82,8 @@ class Collection {
 
       const progress = document.createElement("progress");
       progress.classList.add("progress", "is-radiusless");
-      progress.setAttribute("value", this.books[i].lastReadIndex || 0);
-      progress.setAttribute("max", this.books[i].totalIndex || 1);
+      progress.setAttribute("value", `${this.books[i].lastReadIndex || 0}`);
+      progress.setAttribute("max", `${this.books[i].totalIndex || 1}`);
 
       cardContainer.appendChild(progress);
 
@@ -109,7 +98,7 @@ class Collection {
     this.elem.appendChild(columns);
   }
 
-  showModal(content) {
+  showModal(content: string) {
     this.modalElem.innerHTML = '';
     this.modalElem.classList.add("modal", "is-active", "is-clipped");
 
@@ -162,21 +151,29 @@ class Collection {
 }
 
 
-// MAIN
-let collection;
-
+// Main function
 document.addEventListener("DOMContentLoaded", () => {
-  collection = new Collection(document.getElementById("books-container"), document.getElementById("modal"));
-});
+  let collection: Collection;
 
-// Process the epub file
-document.getElementById("file-input").addEventListener('change', async function(e) {
-  if (e.target.files[0]) {
-    console.log('EPUB file: ' + e.target.files[0].name);
-    collection.addBookFromFile(e.target.files[0]);
+  const mainElem = document.getElementById("books-container");
+  const modal = document.getElementById("modal");
+
+  // This shouldn't fail NEVER when used with index.html
+  if (mainElem && modal) {
+    collection = new Collection(mainElem, modal);
   }
+
+  // Process the epub file
+  document.getElementById("file-input")?.addEventListener('change', async function(e) {
+    const files = (e.target as HTMLInputElement).files
+
+    if (files && files.length > 0) {
+      collection.addBookFromFile(files[0]);
+    }
+  });
+
+  document.getElementById("sync")?.addEventListener('click', async function() {
+    await collection.syncWithServer();
+  });
 });
 
-document.getElementById("sync").addEventListener('click', async function(e) {
-  await collection.syncWithServer();
-});

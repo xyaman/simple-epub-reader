@@ -5,7 +5,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 
-const files = ["collection.js", "reader.js", "settings.ts"];
+const files = ["collection.ts", "reader.js", "settings.ts"];
 const inPath = "src/js"
 
 export default [
