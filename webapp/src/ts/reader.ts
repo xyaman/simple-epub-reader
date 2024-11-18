@@ -327,3 +327,19 @@ function getRawCharacterCount(node: Node) {
 function countUnicodeCharacters(s: string) {
   return Array.from(s).length;
 }
+
+async function main() {
+  const reader = new Reader(document.getElementById("reader")!, document.getElementById("character-counter")!, document.getElementById("page-counter")!);
+
+  // TODO: Handle invalid (or null) id
+  const urlParams = new URLSearchParams(window.location.search);
+  const id = parseInt(urlParams.get("id")!);
+
+  const bookObject = await db.getBookById(id);
+  if (bookObject) {
+    const book = await EpubBook.newFromExistingObject(id, bookObject)
+    await reader.setBook(book);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", main);
