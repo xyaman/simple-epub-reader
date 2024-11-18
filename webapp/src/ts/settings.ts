@@ -1,4 +1,4 @@
-interface Settings {
+export interface ISettings {
   lightTheme: boolean;
   readerIsPaginated: boolean;
   readerFontSize: number;
@@ -7,7 +7,7 @@ interface Settings {
 };
 
 const SETTINGS_KEY = "settings";
-const DEFAULT_SETTINGS: Settings = {
+const DEFAULT_SETTINGS: ISettings = {
   lightTheme: false,
   readerIsPaginated: true,
   readerFontSize: 25,
@@ -22,10 +22,10 @@ export function load() {
   const settings = window.localStorage.getItem(SETTINGS_KEY);
   if (!settings) return DEFAULT_SETTINGS;
 
-  const currentSettings: Settings = JSON.parse(settings);
+  const currentSettings: ISettings = JSON.parse(settings);
   return { ...DEFAULT_SETTINGS, ...currentSettings };
 }
 
-export function update(settings: Settings) {
+export function update(settings: ISettings) {
   window.localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
 }

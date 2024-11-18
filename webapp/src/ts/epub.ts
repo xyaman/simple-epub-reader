@@ -29,7 +29,6 @@ export class EpubBook {
   language!: string;
   identifier?: string;
 
-
   // We must use this in order to get the current percentage.
   // `totalIndex` should be initialized when it's first open by the reader
   totalIndex: number = 0;
@@ -38,9 +37,10 @@ export class EpubBook {
   file!: File;
   blobs: Blob[] = [];
 
-  navigation: INavigationItem[] = [];
   /** Array of all book html+xml content already sanitized to work with images */
   textHTML: HTMLElement[] = [];
+  navigation: INavigationItem[] = [];
+  links: HTMLAnchorElement[] = [];
 
   rootfilepath?: string;
   rootpath?: string;
@@ -48,6 +48,7 @@ export class EpubBook {
 
   /** Zip File (jszip library) https://github.com/Stuk/jszip */
   private _zip: any;
+  private isLoaded: boolean = false;
 
 
   /** This function is used when you create a `EpubBook` from a file (input) */
@@ -55,6 +56,13 @@ export class EpubBook {
     const book = new EpubBook();
     book.file = file;
     await book.#loadMetadata();
+
+    // TODO: load paragraphs lenght (currently the only way would be load the book content) 
+    // book.loadContent();
+    //const tempElem = document.createElement("div");
+    //tempElem.append(...book.textHTML);
+    //book.totalIndex = tempElem.querySelectorAll("p").length;
+
     return book;
   }
 
@@ -81,6 +89,7 @@ export class EpubBook {
    * Note: this object MUST be used when saving in the db. */
   get object(): IPartialBook {
     return {
+      // id: this.id,
       title: this.title,
       updatedAt: this.updatedAt,
       language: this.language,
@@ -116,7 +125,7 @@ export class EpubBook {
     // Metadata
     // https://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm
     const content = await zip.file(rootfilepath).async("text");
-    const parsedContent = domparser.parseFromString(content, "application/xml");
+    const parsedContent = domparser.parseFromString(content, "application/xhtml+xml");
 
     this.title = parsedContent.getElementsByTagName("dc:title")[0].innerHTML;
     this.language = parsedContent.getElementsByTagName("dc:language")[0].innerHTML;
@@ -151,8 +160,12 @@ export class EpubBook {
     return this._zip;
   }
 
-  async loadContent() {
+  async loadContent(reload = false) {
+    // we return if there is no file (shouldn't happens)
     if (!this.file) return;
+
+    // we return if the book is already loaded and reload is false
+    if (this.isLoaded && !reload) return;
 
     const starttime = Date.now();
     const zip = await this.zipfile();
@@ -169,7 +182,7 @@ export class EpubBook {
     // ex. <item media-type="application/xhtml+xml" id="toc" href="navigation-documents.xhtml" properties="nav"/>
     const navigationitem = parsedContent.querySelector("item[properties='nav']");
     if (navigationitem) {
-      const navigationpath = navigationitem.getAttribute("href");
+      const navigationpath = this.rootpath + navigationitem.getAttribute("href")!;
 
       //<nav epub:type="toc" id="toc">
       //  <h1>Navigation</h1>
@@ -187,9 +200,11 @@ export class EpubBook {
       //</nav>
       const navigationfile: string = await zip.file(navigationpath).async("text");
       const navigationcontent = parser.parseFromString(navigationfile, "application/xhtml+xml");
-      const navItems = navigationcontent.querySelectorAll("nav li");
-      for (const item of navItems) {
-        const href = item.getAttribute("href")?.split("#")[1];
+
+      // TODO: there might be more than one nav, resulting in undefined hrefs
+      const a = navigationcontent.querySelectorAll("li a");
+      for (const item of a) {
+        const href = this.rootpath + item.getAttribute("href")?.split("#")[1]!;
         this.navigation.push({ href: href!, text: item.textContent! });
       }
     }
@@ -216,8 +231,7 @@ export class EpubBook {
     // we look for all the images in the zip (not the manifest)
     for (const image of zip.filter((path: string) => /\.(jpg|jpeg|png)$/i.test(path))) {
       const r: Blob = await zip.file(image.name).async("blob")
-
-      const contentType = image.name.contains("jpeg") ? "image/jpeg" : "image/png";
+      const contentType = image.name.includes("jpeg") ? "image/jpeg" : "image/png";
       const blob = r.slice(0, r.size, contentType);
       this.blobs.push(blob);
 
@@ -230,17 +244,22 @@ export class EpubBook {
     // We read all contents file at the same time (Promise.All)
     const xhtmlItems = parsedContent.querySelectorAll('item[media-type="application/xhtml+xml"]:not([properties="nav"]');
     const xhtmlFiles: string[] = await Promise.all([...xhtmlItems].map((item: Element) => {
-      return zip.file(this.rootpath + item.getAttribute("href")!);
+      return zip.file(this.rootpath + item.getAttribute("href")!).async("text");
     }));
 
+    //console.log(xhtmlFiles);
+
     for (let i = 0; i < xhtmlFiles.length; i++) {
+      // console.log(xhtmlItems[i].outerHTML, xhtmlFiles[i]);
+
       const xhtmlPath = this.rootpath + xhtmlItems[i].getAttribute("href")!;
+
       const parsedContent = parser.parseFromString(xhtmlFiles[i], "application/xml");
 
-      const body = document.createElement("div")
+      const body = document.createElement("div");
       body.innerHTML = parsedContent.querySelector("body")!.innerHTML;
-
       body.setAttribute("id", getFileNameFromPath(xhtmlPath).slice(0, -6));
+      this.textHTML.push(body);
 
       // Update images(svg) & img hrefs
       // It seems there is no a standard about how to declare a xhtml that contains
@@ -260,17 +279,15 @@ export class EpubBook {
         imgTags[i].src = imagesMap[getFileNameFromPath(imgTags[i].src)];
       }
 
-      // We want to modify the links
-      // I don't know if it works in all epubs, and probably wont work 
-      // TODO: Paginated mode
+      // TODO: paginated mode
       const links = body.getElementsByTagName("a");
       if (links) {
-        [...links].forEach(link => link.href = "#" + link.href.split("#")[1]);
+        [...links].forEach(link => {
+          link.href = "#" + link.href.split("#")[1];
+          this.links.push(link);
+        });
+
       }
-
-      // we have the file name without the extension
-
-      this.textHTML.push(body);
     }
 
     console.log(`Epub loaded in ${Date.now() - starttime}ms`);
