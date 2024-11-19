@@ -1,0 +1,2 @@
+- [ ] Add styles/themes.
+- [ ] Review (rewrite?) go to page/position (is not working well with images).

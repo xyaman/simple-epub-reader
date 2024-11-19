@@ -143,6 +143,9 @@ export class EpubBook {
     if (coverImage) {
       this.coverimagepath = this.rootpath + coverImage.getAttribute("href");
     }
+
+    // help the gc ?
+    this._zip = null;
   }
 
   /** Returns the image as a blob url */
@@ -291,6 +294,9 @@ export class EpubBook {
     }
 
     console.log(`Epub loaded in ${Date.now() - starttime}ms`);
+
+    // help the gc?
+    this._zip = null;
   }
 }
 

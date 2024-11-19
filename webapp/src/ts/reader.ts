@@ -66,8 +66,12 @@ export class Reader {
     // if (this.currentBook) {
     // }
 
+    const starttime = Date.now();
+
+    this.bookContentElem.innerHTML = "Loading...";
     this.currentBook = book;
     await book.loadContent();
+    this.bookContentElem.innerHTML = "";
 
     // it's necesary to render the content in order to
     // calculate the rect size (paginated mode).
@@ -113,6 +117,8 @@ export class Reader {
     } else {
       this.setupContinous();
     }
+
+    console.log(`Reader loaded in ${Date.now() - starttime}ms`);
   }
 
   private setupContinous() {
@@ -269,8 +275,8 @@ export class Reader {
     });
   }
 
- /** Creates a page and push it to this.page.
-   * Note: This function only works if the reader is in paginated mode */
+  /** Creates a page and push it to this.page.
+    * Note: This function only works if the reader is in paginated mode */
   paginatedCreatePage(elems: HTMLElement[]) {
     if (!this.preferences.readerIsPaginated) return;
 
@@ -287,9 +293,9 @@ export class Reader {
     }
 
     this.pages.push(pageDiv);
-  } 
-  
-goToPage(pageIndex: number) {
+  }
+
+  goToPage(pageIndex: number) {
     this.pageIndex = Math.max(0, Math.min(pageIndex, this.pages.length - 1));
 
     this.bookContentElem.innerHTML = "";
