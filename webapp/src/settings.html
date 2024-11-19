@@ -28,13 +28,20 @@
   <main>
     <div class="section">
       <div class="container">
+        <h2 class="subtitle">Reader Settings</h2>
 
-        <label class="label">Light theme</label>
-        <label class="checkbox">
-          <input type="checkbox" id="light-theme" />
-          Use light theme?
-        </label>
-
+        <label class="label">Reader theme</label>
+        <div class="control">
+              <label class="radio">
+                <input type="radio" name="theme" value="light"/>
+                Light theme
+              </label>
+              <label class="radio">
+                <input type="radio" name="theme" value="dark" />
+                Dark theme
+            </label>
+        </div>
+            
         <label class="label">Font Size</label>
         <div class="field has-addons">
           <p class="control">
@@ -44,6 +51,25 @@
             <a class="button is-static">px</a>
           </div>
         </div>
+
+          <label class="label">Reader Content</label>
+          <div class="control">
+            <label class="radio">
+              <input type="radio" name="reader-mode" value="continous"/>
+              Continous
+            </label>
+            <label class="radio">
+              <input type="radio" name="reader-mode" value="paginated" />
+              Paginated
+            </label>
+         </div>
+    </div>
+    </div>
+
+     <div class="section"> 
+      <div class="container"> 
+      
+        <h2 class="subtitle">Server Settings</h2>
 
         <label class="label">Server address</label>
         <div class="field">
@@ -61,12 +87,6 @@
             <button id="generate-uuid" class="button">Generate</button>
           </div>
         </div>
-
-        <label class="label">Paginated Mode</label>
-        <label class="checkbox">
-          <input type="checkbox" id="paginatedMode" />
-          Use paginated mode?
-        </label>
       </div>
     </div>
   </main>
@@ -78,19 +98,41 @@
     let currentSettings = settings.load();
     console.log(currentSettings);
 
-    const lightThemeItem = document.getElementById("light-theme");
+    const themesRadios = document.querySelectorAll('input[name="theme"]'); 
+    for (let i = 0; i < themesRadios.length; i++) {
+      const radio = themesRadios[i];
+      if (radio.value === currentSettings.theme) {
+        radio.checked = true;
+      }
+
+      radio.addEventListener("change", e => {
+        currentSettings = {...currentSettings, theme: radio.value}
+        settings.update(currentSettings);
+      })
+    }
+
+    const modeRadios = document.querySelectorAll('input[name="reader-mode"]'); 
+    for (let i = 0; i < modeRadios.length; i++) {
+      const radio = modeRadios[i];
+      if (radio.value === currentSettings.readerMode) {
+        radio.checked = true;
+      }
+
+      radio.addEventListener("change", e => {
+        currentSettings = {...currentSettings, readerMode: radio.value}
+        settings.update(currentSettings);
+      })
+    }
+
     const fontItem = document.getElementById("fontSize");
     const serverAddressItem = document.getElementById("server-address");
     const serverUUID = document.getElementById("server-uuid");
     const generateUUID = document.getElementById("generate-uuid");
-    const isPaginatedItem = document.getElementById("paginatedMode");
 
     // set default values
-    lightThemeItem.checked = currentSettings.lightTheme;
     fontItem.value = currentSettings.fontSize;
     serverAddressItem.value = currentSettings.serverAddress;
     serverUUID.value = currentSettings.uuid;
-    isPaginatedItem.checked = currentSettings.readerIsPaginated;
 
     fontItem.addEventListener("change", e => {
       try {
@@ -125,17 +167,6 @@
         serverUUID.value = resJSON.data;
       }
     });
-
-    lightThemeItem.addEventListener("change", e => {
-      currentSettings = {...currentSettings, lightTheme: e.target.checked}
-      settings.update(currentSettings);
-    });
-
-    isPaginatedItem.addEventListener("change", e => {
-      currentSettings = {...currentSettings, readerIsPaginated: e.target.checked}
-      settings.update(currentSettings);
-    });
-
 
     // Other listeners
     document.getElementById("go-back").addEventListener("click", () => {

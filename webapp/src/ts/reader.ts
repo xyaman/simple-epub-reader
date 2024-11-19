@@ -47,7 +47,7 @@ export class Reader {
     this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
 
     // TODO: improve this
-    if (this.preferences.lightTheme) {
+    if (this.preferences.theme === "light") {
       this.readerElem.style.color = "black";
       this.readerElem.style.background = "white";
 
@@ -112,7 +112,7 @@ export class Reader {
     this.charsCounterElem.innerText = `0/${totalChars} (0%)`
 
     // Initialize the reader (continous / paginated)
-    if (this.preferences.readerIsPaginated) {
+    if (this.preferences.readerMode === "paginated") {
       this.setupPaginated();
     } else {
       this.setupContinous();
@@ -278,8 +278,6 @@ export class Reader {
   /** Creates a page and push it to this.page.
     * Note: This function only works if the reader is in paginated mode */
   paginatedCreatePage(elems: HTMLElement[]) {
-    if (!this.preferences.readerIsPaginated) return;
-
     const pageDiv = document.createElement("div");
     pageDiv.classList.add("page");
 

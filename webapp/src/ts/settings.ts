@@ -1,6 +1,6 @@
 export interface ISettings {
-  lightTheme: boolean;
-  readerIsPaginated: boolean;
+  theme: "light" | "dark";
+  readerMode: "continous" | "paginated";
   readerFontSize: number;
   uuid: string;
   serverAddress: string;
@@ -8,8 +8,8 @@ export interface ISettings {
 
 const SETTINGS_KEY = "settings";
 const DEFAULT_SETTINGS: ISettings = {
-  lightTheme: false,
-  readerIsPaginated: true,
+  theme: "dark",
+  readerMode: "continous",
   readerFontSize: 25,
   uuid: "",
   serverAddress: ""
