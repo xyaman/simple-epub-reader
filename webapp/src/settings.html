@@ -1,185 +1,196 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="/css/bulma.min.css" />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Settings</title>
-  <link rel="stylesheet" href="/css/font-awesome.min.css">
-  <link rel="stylesheet" href="/css/bulma.min.css">
-  <link rel="stylesheet" href="/css/style.css">
-</head>
+  <body>
+    <nav class="custom-navbar" role="navigation">
+      <div class="navbar-content">
+        <p class="has-text-light">Settings</p>
 
-<body>
-  <nav class="custom-navbar" role="navigation">
-    <div class="navbar-content">
-      <p class="has-text-light">Settings</p>
-
-      <div class="right-content">
-        <a id="go-back" class="has-text-light">
-          <span class="icon">
-            <i class="fa-solid fa-right-from-bracket"></i>
-          </span>
-        </a>
+        <div class="right-content">
+          <a id="go-back" class="has-text-light">
+            <span class="icon">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </span>
+          </a>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <main>
-    <div class="section">
-      <div class="container">
-        <h2 class="subtitle">Reader Settings</h2>
+    <main>
+      <div class="section">
+        <div class="container">
+          <h2 class="subtitle">Reader Settings</h2>
 
-        <label class="label">Reader theme</label>
-        <div class="control">
-              <label class="radio">
-                <input type="radio" name="theme" value="light"/>
-                Light theme
-              </label>
-              <label class="radio">
-                <input type="radio" name="theme" value="dark" />
-                Dark theme
-            </label>
-        </div>
-            
-        <label class="label">Font Size</label>
-        <div class="field has-addons">
-          <p class="control">
-            <input id="fontSize" class="input" type="number" placeholder="25" />
-          </p>
+          <label class="label">Reader theme</label>
           <div class="control">
-            <a class="button is-static">px</a>
+            <label class="radio">
+              <input type="radio" name="theme" value="light" />
+              Light theme
+            </label>
+            <label class="radio">
+              <input type="radio" name="theme" value="dark" />
+              Dark theme
+            </label>
           </div>
-        </div>
+
+          <label class="label">Font Size</label>
+          <div class="field has-addons">
+            <p class="control">
+              <input
+                id="fontSize"
+                class="input"
+                type="number"
+                placeholder="25"
+              />
+            </p>
+            <div class="control">
+              <a class="button is-static">px</a>
+            </div>
+          </div>
 
           <label class="label">Reader Content</label>
           <div class="control">
             <label class="radio">
-              <input type="radio" name="reader-mode" value="continous"/>
+              <input type="radio" name="reader-mode" value="continous" />
               Continous
             </label>
             <label class="radio">
               <input type="radio" name="reader-mode" value="paginated" />
               Paginated
             </label>
-         </div>
-    </div>
-    </div>
-
-     <div class="section"> 
-      <div class="container"> 
-      
-        <h2 class="subtitle">Server Settings</h2>
-
-        <label class="label">Server address</label>
-        <div class="field">
-          <p class="control">
-            <input id="server-address" class="input" type="text" placeholder="http://localhost:3000" />
-          </p>
-        </div>
-
-        <label class="label">Server ID</label>
-        <div class="field has-addons">
-          <p class="control">
-            <input id="server-uuid" class="input" type="text" placeholder="xxxx-xxxx-xxx-xxxx" />
-          </p>
-          <div class="control">
-            <button id="generate-uuid" class="button">Generate</button>
           </div>
         </div>
       </div>
-    </div>
-  </main>
 
-  <script type="module">
-    import * as settings from "./js/settings.js"
+      <div class="section">
+        <div class="container">
+          <h2 class="subtitle">Server Settings</h2>
 
+          <label class="label">Server address</label>
+          <div class="field">
+            <p class="control">
+              <input
+                id="server-address"
+                class="input"
+                type="text"
+                placeholder="http://localhost:3000"
+              />
+            </p>
+          </div>
 
-    let currentSettings = settings.load();
-    console.log(currentSettings);
+          <label class="label">Server ID</label>
+          <div class="field has-addons">
+            <p class="control">
+              <input
+                id="server-uuid"
+                class="input"
+                type="text"
+                placeholder="xxxx-xxxx-xxx-xxxx"
+              />
+            </p>
+            <div class="control">
+              <button id="generate-uuid" class="button">Generate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
 
-    const themesRadios = document.querySelectorAll('input[name="theme"]'); 
-    for (let i = 0; i < themesRadios.length; i++) {
-      const radio = themesRadios[i];
-      if (radio.value === currentSettings.theme) {
-        radio.checked = true;
+    <script type="module">
+      import * as settings from "./js/settings.js";
+
+      let currentSettings = settings.load();
+      console.log(currentSettings);
+
+      const themesRadios = document.querySelectorAll('input[name="theme"]');
+      for (let i = 0; i < themesRadios.length; i++) {
+        const radio = themesRadios[i];
+        if (radio.value === currentSettings.theme) {
+          radio.checked = true;
+        }
+
+        radio.addEventListener("change", (e) => {
+          currentSettings = { ...currentSettings, theme: radio.value };
+          settings.update(currentSettings);
+        });
       }
 
-      radio.addEventListener("change", e => {
-        currentSettings = {...currentSettings, theme: radio.value}
+      const modeRadios = document.querySelectorAll('input[name="reader-mode"]');
+      for (let i = 0; i < modeRadios.length; i++) {
+        const radio = modeRadios[i];
+        if (radio.value === currentSettings.readerMode) {
+          radio.checked = true;
+        }
+
+        radio.addEventListener("change", (e) => {
+          currentSettings = { ...currentSettings, readerMode: radio.value };
+          settings.update(currentSettings);
+        });
+      }
+
+      const fontItem = document.getElementById("fontSize");
+      const serverAddressItem = document.getElementById("server-address");
+      const serverUUID = document.getElementById("server-uuid");
+      const generateUUID = document.getElementById("generate-uuid");
+
+      // set default values
+      fontItem.value = currentSettings.fontSize;
+      serverAddressItem.value = currentSettings.serverAddress;
+      serverUUID.value = currentSettings.uuid;
+
+      fontItem.addEventListener("change", (e) => {
+        try {
+          const size = parseInt(e.target.value);
+          currentSettings = { ...currentSettings, fontSize: size };
+          settings.update(currentSettings);
+        } catch {
+          return;
+        }
+      });
+
+      serverAddressItem.addEventListener("change", (e) => {
+        const address = e.target.value;
+        currentSettings = { ...currentSettings, serverAddress: address };
         settings.update(currentSettings);
-      })
-    }
+      });
 
-    const modeRadios = document.querySelectorAll('input[name="reader-mode"]'); 
-    for (let i = 0; i < modeRadios.length; i++) {
-      const radio = modeRadios[i];
-      if (radio.value === currentSettings.readerMode) {
-        radio.checked = true;
-      }
-
-      radio.addEventListener("change", e => {
-        currentSettings = {...currentSettings, readerMode: radio.value}
+      serverUUID.addEventListener("change", (e) => {
+        const uuid = e.target.value;
+        currentSettings = { ...currentSettings, uuid: uuid };
         settings.update(currentSettings);
-      })
-    }
+      });
 
-    const fontItem = document.getElementById("fontSize");
-    const serverAddressItem = document.getElementById("server-address");
-    const serverUUID = document.getElementById("server-uuid");
-    const generateUUID = document.getElementById("generate-uuid");
+      generateUUID.addEventListener("click", async (e) => {
+        const res = await fetch(
+          `${currentSettings.serverAddress}/user/generate`,
+        );
+        const resJSON = await res.json();
 
-    // set default values
-    fontItem.value = currentSettings.fontSize;
-    serverAddressItem.value = currentSettings.serverAddress;
-    serverUUID.value = currentSettings.uuid;
+        if (resJSON.success) {
+          currentSettings = { ...currentSettings, uuid: resJSON.data };
+          settings.update(currentSettings);
 
-    fontItem.addEventListener("change", e => {
-      try {
-        const size = parseInt(e.target.value);
-        currentSettings = {...currentSettings, fontSize: size}
-        settings.update(currentSettings);
-      } catch {
-        return
-      }
-    });
+          serverUUID.value = resJSON.data;
+        }
+      });
 
-    serverAddressItem.addEventListener("change", e => {
-      const address = e.target.value;
-      currentSettings = {...currentSettings, serverAddress: address}
-      settings.update(currentSettings);
-    });
+      // Other listeners
+      document.getElementById("go-back").addEventListener("click", () => {
+        if (document.referrer) {
+          window.location.replace(document.referrer);
+          return;
+        }
 
-    serverUUID.addEventListener("change", e => {
-      const uuid = e.target.value;
-      currentSettings = {...currentSettings, uuid: uuid}
-      settings.update(currentSettings);
-    });
-
-    generateUUID.addEventListener("click", async e => {
-      const res = await fetch(`${currentSettings.serverAddress}/user/generate`);
-      const resJSON = await res.json();
-
-      if (resJSON.success) {
-        currentSettings = {...currentSettings, uuid: resJSON.data}
-        settings.update(currentSettings);
-
-        serverUUID.value = resJSON.data;
-      }
-    });
-
-    // Other listeners
-    document.getElementById("go-back").addEventListener("click", () => {
-      if (document.referrer) {
-        window.location.replace(document.referrer);
-        return;
-      }
-
-      window.location.href = "/simple-epub-reader/index.html";
-
-    });
-  </script>
-
-</body>
-
+        window.location.href = "/index.html";
+      });
+    </script>
+  </body>
 </html>

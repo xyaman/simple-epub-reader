@@ -21,17 +21,17 @@ export class Reader {
   private pages: HTMLElement[] = [];
 
   private pageIndex: number = 0;
-  private swipeStartX: number = 0
-  private swipeEndX: number = 0
+  private swipeStartX: number = 0;
+  private swipeEndX: number = 0;
 
   private preferences: ISettings;
   private scrollTimer?: ReturnType<typeof setTimeout>;
 
-  constructor(readerElem: HTMLElement, charsCounterElem: HTMLElement, pageCounterElem: HTMLElement) {
-
-    this.readerElem = readerElem;
-    this.charsCounterElem = charsCounterElem;
-    this.pageCounterElem = pageCounterElem;
+  // constructor(readerElem: HTMLElement, charsCounterElem: HTMLElement, pageCounterElem: HTMLElement) {
+  constructor(readerId: string, charsCounterId: string, pageCounterId: string) {
+    this.readerElem = document.getElementById(readerId)!;
+    this.charsCounterElem = document.getElementById(charsCounterId)!;
+    this.pageCounterElem = document.getElementById(pageCounterId)!;
 
     this.bookContentElem = document.createElement("div");
     this.bookContentElem.setAttribute("id", "book-content");
@@ -44,7 +44,7 @@ export class Reader {
   /** Updates the elements css based on the reader preferences */
   private updateReaderStyle() {
     this.readerElem.style.fontSize = `${this.preferences.readerFontSize}px`;
-    this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
+    this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`;
 
     // TODO: improve this
     if (this.preferences.theme === "light") {
@@ -61,7 +61,6 @@ export class Reader {
 
   /** Sets a new book and render it into `this.readerElem` */
   async setBook(book: EpubBook) {
-
     // TODO: Clean (blobs for ex)
     // if (this.currentBook) {
     // }
@@ -81,9 +80,9 @@ export class Reader {
 
     // Re-initialize book-related properties
     this.paragraphs = this.bookContentElem.querySelectorAll("p");
-    this.paragraphsCharsAcum = []
+    this.paragraphsCharsAcum = [];
 
-    // We calculate totalIndex, and then we mark every 
+    // We calculate totalIndex, and then we mark every
     // paragraph index to get reading progress, when required.
     this.currentBook.totalIndex = this.paragraphs.length;
     for (let i = 0; i < this.paragraphs.length; i++) {
@@ -94,8 +93,7 @@ export class Reader {
     // TODO: better way to handle paragraphs? (chars are different from ttsu-reader)
     let totalChars = 0;
     for (let i = 0; i < this.paragraphs.length; i++) {
-
-      // We clone the paragraph, because we will remove all the 
+      // We clone the paragraph, because we will remove all the
       // <rt> tags and we dont want to modify the original
       const clone = this.paragraphs[i].cloneNode(true) as HTMLElement;
 
@@ -109,7 +107,7 @@ export class Reader {
     }
 
     // Counter text (re-)initialization
-    this.charsCounterElem.innerText = `0/${totalChars} (0%)`
+    this.charsCounterElem.innerText = `0/${totalChars} (0%)`;
 
     // Initialize the reader (continous / paginated)
     if (this.preferences.readerMode === "paginated") {
@@ -130,7 +128,10 @@ export class Reader {
       this.paragraphs[this.currentBook.lastReadIndex].scrollIntoView();
     }
 
-    document.removeEventListener("scroll", this.continousHandleTimer.bind(this));
+    document.removeEventListener(
+      "scroll",
+      this.continousHandleTimer.bind(this),
+    );
     document.addEventListener("scroll", this.continousHandleTimer.bind(this));
   }
 
@@ -143,7 +144,6 @@ export class Reader {
 
   // This function is called once the scroll ends
   private continousHandleScroll() {
-
     // this should never happen (this fucntion is called by `setBook`)
     if (!this.currentBook) return;
 
@@ -154,7 +154,7 @@ export class Reader {
 
       // When the element is no longer visible, we count as readed
       // No longer visible: rect.bottom <= 0
-      if (rect.bottom > 0) break
+      if (rect.bottom > 0) break;
 
       const index = this.paragraphs[i].getAttribute("data-index") || "0";
       lastReadIndex = parseInt(index);
@@ -165,16 +165,18 @@ export class Reader {
       db.updateBookPosition(this.currentBook);
 
       // xx/yyy (xx%)
-      const progressPercentage = this.paragraphsCharsAcum[lastReadIndex] / this.paragraphsCharsAcum[this.paragraphsCharsAcum.length - 1] * 100;
-      this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastReadIndex]}/${this.paragraphsCharsAcum[this.paragraphsCharsAcum.length - 1]} (${progressPercentage.toFixed(2)}%)`
+      const progressPercentage =
+        (this.paragraphsCharsAcum[lastReadIndex] /
+          this.paragraphsCharsAcum[this.paragraphsCharsAcum.length - 1]) *
+        100;
+      this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastReadIndex]}/${this.paragraphsCharsAcum[this.paragraphsCharsAcum.length - 1]} (${progressPercentage.toFixed(2)}%)`;
     }
   }
 
   private setupPaginated() {
-
     // We need to check and choose better defaults?
     this.readerElem.style.overflow = "hidden";
-    this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
+    this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`;
 
     // IOS bouncing
     document.documentElement.style.overscrollBehavior = "none";
@@ -192,9 +194,10 @@ export class Reader {
       // We go trough all the elements that should be rendered
       // <p>: but ony <p> that doesn't contain img
       // <img> <svg> tags, images
-      const elems = this.bookContentElem.querySelectorAll("p:not(:has(img)), img, svg") as NodeListOf<HTMLElement>;
+      const elems = this.bookContentElem.querySelectorAll(
+        "p:not(:has(img)), img, svg",
+      ) as NodeListOf<HTMLElement>;
       for (let i = 0; i < elems.length; i++) {
-
         const elemHeight = elems[i].offsetHeight;
         const elem = elems[i].cloneNode(true) as HTMLElement;
 
@@ -216,7 +219,8 @@ export class Reader {
           // Usually there is an image (cover) as first element, so the first
           // page is empty
           // TODO: check this
-          if (currentPageContent.length > 0) this.paginatedCreatePage(currentPageContent);
+          if (currentPageContent.length > 0)
+            this.paginatedCreatePage(currentPageContent);
           currentPageContent = [elem];
           currentPageHeight = elemHeight;
         }
@@ -239,7 +243,7 @@ export class Reader {
     });
 
     window.addEventListener("resize", () => {
-      this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`
+      this.readerElem.style.height = `${Math.ceil(window.innerHeight * 0.8)}px`;
       // TODO: Find a better way?
       this.bookContentElem.innerHTML = "";
 
@@ -253,11 +257,11 @@ export class Reader {
     });
 
     // Swipe Support
-    document.addEventListener("touchstart", e => {
+    document.addEventListener("touchstart", (e) => {
       this.swipeStartX = e.changedTouches[0].screenX;
     });
 
-    document.addEventListener("touchend", e => {
+    document.addEventListener("touchend", (e) => {
       this.swipeEndX = e.changedTouches[0].screenX;
 
       const diff = Math.abs(this.swipeEndX - this.swipeStartX);
@@ -271,12 +275,11 @@ export class Reader {
       }
 
       console.log(this.pages[this.pageIndex]);
-
     });
   }
 
   /** Creates a page and push it to this.page.
-    * Note: This function only works if the reader is in paginated mode */
+   * Note: This function only works if the reader is in paginated mode */
   paginatedCreatePage(elems: HTMLElement[]) {
     const pageDiv = document.createElement("div");
     pageDiv.classList.add("page");
@@ -284,7 +287,11 @@ export class Reader {
     for (let i = 0; i < elems.length; i++) {
       const dataIndex = elems[i].getAttribute("data-index");
       // this.book.lastReadIndex > 1; otherwise if may skip the cover image
-      if (dataIndex && this.currentBook!.lastReadIndex > 1 && parseInt(dataIndex) === this.currentBook!.lastReadIndex) {
+      if (
+        dataIndex &&
+        this.currentBook!.lastReadIndex > 1 &&
+        parseInt(dataIndex) === this.currentBook!.lastReadIndex
+      ) {
         this.pageIndex = this.pages.length;
       }
       pageDiv.appendChild(elems[i]);
@@ -304,13 +311,18 @@ export class Reader {
     const lastParagraph = this.pages[this.pageIndex].querySelector("p");
     if (lastParagraph) {
       const lastIndex = lastParagraph.getAttribute("data-index") || null;
-      lastValidIndex = lastIndex ? Math.max(parseInt(lastIndex) - 1, 0) : this.currentBook!.lastReadIndex;
+      lastValidIndex = lastIndex
+        ? Math.max(parseInt(lastIndex) - 1, 0)
+        : this.currentBook!.lastReadIndex;
       this.currentBook!.lastReadIndex = lastValidIndex + 1;
     }
 
     // Update character counter
-    const progressPercentage = this.paragraphsCharsAcum[lastValidIndex] / this.paragraphsCharsAcum.slice(-1)[0] * 100;
-    this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastValidIndex]}/${this.paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`
+    const progressPercentage =
+      (this.paragraphsCharsAcum[lastValidIndex] /
+        this.paragraphsCharsAcum.slice(-1)[0]) *
+      100;
+    this.charsCounterElem.innerText = `${this.paragraphsCharsAcum[lastValidIndex]}/${this.paragraphsCharsAcum.slice(-1)[0]} (${progressPercentage.toFixed(2)}%)`;
 
     // Update page counter
     this.pageCounterElem.innerText = `Page ${this.pageIndex}/${this.currentBook!.totalIndex}`;
@@ -325,7 +337,9 @@ const isNotJapaneseRegex =
 
 function getRawCharacterCount(node: Node) {
   if (!node.textContent) return 0;
-  return countUnicodeCharacters(node.textContent.replace(isNotJapaneseRegex, ''));
+  return countUnicodeCharacters(
+    node.textContent.replace(isNotJapaneseRegex, ""),
+  );
 }
 
 function countUnicodeCharacters(s: string) {
@@ -333,16 +347,22 @@ function countUnicodeCharacters(s: string) {
 }
 
 async function main() {
-  const reader = new Reader(document.getElementById("reader")!, document.getElementById("character-counter")!, document.getElementById("page-counter")!);
-
   // TODO: Handle invalid (or null) id
   const urlParams = new URLSearchParams(window.location.search);
-  const id = parseInt(urlParams.get("id")!);
+  const idParam = urlParams.get("id");
 
+  if (!idParam || isNaN(parseInt(idParam))) {
+    // error
+    return;
+  }
+  const id = parseInt(idParam);
   const bookObject = await db.getBookById(id);
   if (bookObject) {
-    const book = await EpubBook.newFromExistingObject(id, bookObject)
+    const reader = new Reader("reader", "character-counter", "page-counter");
+    const book = await EpubBook.newFromExistingObject(id, bookObject);
     await reader.setBook(book);
+  } else {
+    // error
   }
 }
 
