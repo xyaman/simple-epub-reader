@@ -149,7 +149,7 @@
       fontItem.addEventListener("change", (e) => {
         try {
           const size = parseInt(e.target.value);
-          currentSettings = { ...currentSettings, fontSize: size };
+          currentSettings = { ...currentSettings, readerFontSize: size };
           settings.update(currentSettings);
         } catch {
           return;
